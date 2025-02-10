@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rick and Morty Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .search-container {
+            margin: 20px;
+        }
+        .results-container {
+            margin: 20px;
+        }
+        .result-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <h1>Search Rick and Morty</h1>
+        <label for="search-type">Search for:</label>
+        <select id="search-type" onchange="updateFilters()">
+            <option value="character">Character</option>
+            <option value="location">Location</option>
+            <option value="episode">Episode</option>
+        </select>
+        <div id="filters-container">
+            <label for="name">Name:</label>
+            <input type="text" id="name" placeholder="Name">
+        </div>
+        <button onclick="toggleAdditionalFilters()">Filter</button>
+        <div id="additional-filters-container" style="display: none;">
+            <!-- Additional filters will be dynamically added here -->
+        </div>
+        <button onclick="searchRickAndMorty()">Search</button>
+    </div>
+    <div class="results-container" id="results-container"></div>
+
+    <script src="rick-and-morty.js"></script>
+</body>
+</html>

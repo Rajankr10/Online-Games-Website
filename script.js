@@ -1,3 +1,8 @@
+document.getElementById('rick-and-morty-card').addEventListener('click', () => {
+    window.location.href = 'rick-and-morty-search.html';
+  });
+
+
 /* game slider start*/
 var TrandingSlider = new Swiper('.tranding-slider', {
     effect: 'coverflow',
