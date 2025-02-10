@@ -1,38 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rick and Morty Search</title>
     <link rel="stylesheet" href="rick-and-morty.css">
 </head>
+
 <body>
+    <header>
+        <div class="headbox">
+            <div class="logo">
+                <img src="logo.png" alt="Questify">
+            </div>
+            <div class="search-box">
+                <form action="">
+                    <input type="text" name="search" id="srch" placeholder="Search">
+                    <button type="submit"><img src="search.png"> <!--<i class="fa fa-search">--></i></button>
+                </form>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="https://www.w3schools.com/html/html_images_background.asp">Games</a></li>
+                    <li><a href="#">Store</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <h1>Search Rick and Morty</h1>
+    <div class="search__container">
+
+    </div>
     <div class="search-container">
-        <h1>Search Rick and Morty</h1>
-        <label for="search-type">Search for:</label>
-        <select id="search-type" onchange="updateFilters()">
-            <option value="character">Character</option>
-            <option value="location">Location</option>
-            <option value="episode">Episode</option>
-        </select>
-        <div id="filters-container">
-            <label for="name">Name:</label>
-            <input type="text" id="name" placeholder="Name">
-            <div id="suggestions-container" class="suggestions-container"></div>
+        <div class="search-controls">
+            <select class="select__css" id="search-type" onchange="updateFilters()">
+                <option value="character">Character</option>
+                <option value="location">Location</option>
+                <option value="episode">Episode</option>
+            </select>
+            <div id="filters-container">
+                <input class="text__input" type="text" id="name" placeholder="Search for name">
+                <div id="suggestions-container" class="suggestions-container"></div>
+            </div>
+            <button class="btn" onclick="toggleAdditionalFilters()">Filter</button>
+            <button class="btn" onclick="searchRickAndMorty()">Search</button>
         </div>
-        <button onclick="toggleAdditionalFilters()">Filter</button>
-        <div id="additional-filters-container" style="display: none;">
-            <!-- Additional filters will be dynamically added here -->
-        </div>
-        <button onclick="searchRickAndMorty()">Search</button>
+            <div id="additional-filters-container" style="display: none;">
+                <!-- Additional filters will be dynamically added here -->
+            </div>
     </div>
     <div class="results-container" id="results-container"></div>
     <div class="pagination">
-        <button onclick="prevPage()">Previous</button>
+        <button class="btn" onclick="prevPage()">Previous</button>
         <span id="page-info"></span>
-        <button onclick="nextPage()">Next</button>
+        <button class="btn" onclick="nextPage()">Next</button>
     </div>
 
     <script src="rick-and-morty.js"></script>
 </body>
+
 </html>
