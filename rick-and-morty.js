@@ -15,18 +15,18 @@ function updateFilters() {
     if (searchType === 'character') {
         additionalFiltersContainer.innerHTML = `
             <label for="status">Status:</label>
-            <select id="status">
+            <select class="select__css" id="status">
                 <option value="">Any</option>
                 <option value="alive">Alive</option>
                 <option value="dead">Dead</option>
                 <option value="unknown">Unknown</option>
             </select>
             <label for="species">Species:</label>
-            <input type="text" id="species" placeholder="Species">
+            <input class="text__input" type="text" id="species" placeholder="Species">
             <label for="type">Type:</label>
-            <input type="text" id="type" placeholder="Type">
+            <input class="text__input" type="text" id="type" placeholder="Type">
             <label for="gender">Gender:</label>
-            <select id="gender">
+            <select class="select__css" id="gender">
                 <option value="">Any</option>
                 <option value="female">Female</option>
                 <option value="male">Male</option>
@@ -37,7 +37,7 @@ function updateFilters() {
     } else if (searchType === 'location') {
         additionalFiltersContainer.innerHTML = `
             <label for="type">Type:</label>
-            <select id="type">
+            <select class="select__css" id="type">
                 <option value="">Any</option>
                 <option value="Planet">Planet</option>
                 <option value="Cluster">Cluster</option>
@@ -51,12 +51,12 @@ function updateFilters() {
                 <option value="unknown">Unknown</option>
             </select>
             <label for="dimension">Dimension:</label>
-            <input type="text" id="dimension" placeholder="Dimension">
+            <input class="text__input" type="text" id="dimension" placeholder="Dimension">
         `;
     } else if (searchType === 'episode') {
         additionalFiltersContainer.innerHTML = `
             <label for="episode">Episode:</label>
-            <input type="text" id="episode" placeholder="Episode">
+            <input class="text__input" type="text" id="episode" placeholder="Episode">
         `;
     }
 }
@@ -64,7 +64,7 @@ function updateFilters() {
 function toggleAdditionalFilters() {
     const additionalFiltersContainer = document.getElementById('additional-filters-container');
     if (additionalFiltersContainer.style.display === 'none') {
-        additionalFiltersContainer.style.display = 'block';
+        additionalFiltersContainer.style.display = 'flex';
     } else {
         additionalFiltersContainer.style.display = 'none';
     }
@@ -157,7 +157,7 @@ function displayResults(results, searchType) {
         resultItem.className = 'result-item';
         resultItem.innerHTML = `
             <img src="${result.image || ''}" alt="${result.name}">
-            <h2>${result.name}</h2>
+            <h2 >${result.name}</h2>
             <div class="result-details">
                 ${searchType === 'character' ? `
                     <p>Status: ${result.status}</p>
