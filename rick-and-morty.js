@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     updateFilters();
+    document.getElementById('name').addEventListener('input', fetchSuggestions);
+    fetchAllCharacters();
 });
+
+let currentPage = 1;
+let totalPages = 1;
 
 function updateFilters() {
     const searchType = document.getElementById('search-type').value;
@@ -65,6 +70,61 @@ function toggleAdditionalFilters() {
     }
 }
 
+async function fetchSuggestions() {
+    const searchType = document.getElementById('search-type').value;
+    const query = document.getElementById('name').value;
+
+    // if (query.length < 3) {
+    //     return; // Don't fetch suggestions for short queries
+    // }
+
+    const response = await fetch(`https://rickandmortyapi.com/api/${searchType}/?name=${query}`);
+    const data = await response.json();
+    displaySuggestions(data.results);
+}
+
+function displaySuggestions(results) {
+    const suggestionsContainer = document.getElementById('suggestions-container');
+    suggestionsContainer.innerHTML = '';
+
+    results.forEach(result => {
+        const suggestionItem = document.createElement('div');
+        suggestionItem.className = 'suggestion-item';
+        suggestionItem.textContent = result.name;
+        suggestionItem.addEventListener('click', () => {
+            document.getElementById('name').value = result.name;
+            suggestionsContainer.innerHTML = '';
+        });
+        suggestionsContainer.appendChild(suggestionItem);
+    });
+}
+
+async function fetchAllCharacters(page = 1) {
+    const response = await fetch(`https://rickandmortyapi.com/api/character/?page=${page}`);
+    const data = await response.json();
+    totalPages = data.info.pages;
+    displayResults(data.results, 'character');
+    updatePageInfo();
+}
+
+function updatePageInfo() {
+    document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        fetchAllCharacters(currentPage);
+    }
+}
+
+function nextPage() {
+    if (currentPage < totalPages) {
+        currentPage++;
+        fetchAllCharacters(currentPage);
+    }
+}
+
 async function searchRickAndMorty() {
     const searchType = document.getElementById('search-type').value;
     let query = `name=${document.getElementById('name').value}`;
@@ -95,36 +155,34 @@ function displayResults(results, searchType) {
     results.forEach(result => {
         const resultItem = document.createElement('div');
         resultItem.className = 'result-item';
-
-        if (searchType === 'character') {
-            resultItem.innerHTML = `
-                <h2>${result.name}</h2>
-                <p>Status: ${result.status}</p>
-                <p>Species: ${result.species}</p>
-                <p>Type: ${result.type || 'N/A'}</p>
-                <p>Gender: ${result.gender}</p>
-                <p>Origin: ${result.origin.name}</p>
-                <p>Location: ${result.location.name}</p>
-                <p>Episodes: ${result.episode.length}</p>
-                <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
-                <img src="${result.image}" alt="${result.name}">
-            `;
-        } else if (searchType === 'location') {
-            resultItem.innerHTML = `
-                <h2>${result.name}</h2>
-                <p>Type: ${result.type}</p>
-                <p>Dimension: ${result.dimension}</p>
-                <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
-            `;
-        } else if (searchType === 'episode') {
-            resultItem.innerHTML = `
-                <h2>${result.name}</h2>
-                <p>Episode: ${result.episode}</p>
-                <p>Air Date: ${result.air_date}</p>
-                <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
-            `;
-        }
-
+        resultItem.innerHTML = `
+            <img src="${result.image || ''}" alt="${result.name}">
+            <h2>${result.name}</h2>
+            <div class="result-details">
+                ${searchType === 'character' ? `
+                    <p>Status: ${result.status}</p>
+                    <p>Species: ${result.species}</p>
+                    <p>Type: ${result.type || 'N/A'}</p>
+                    <p>Gender: ${result.gender}</p>
+                    <p>Origin: ${result.origin.name}</p>
+                    <p>Location: ${result.location.name}</p>
+                    <p>Episodes: ${result.episode.length}</p>
+                    <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
+                ` : searchType === 'location' ? `
+                    <p>Type: ${result.type}</p>
+                    <p>Dimension: ${result.dimension}</p>
+                    <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
+                ` : searchType === 'episode' ? `
+                    <p>Episode: ${result.episode}</p>
+                    <p>Air Date: ${result.air_date}</p>
+                    <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
+                ` : ''}
+            </div>
+        `;
+        resultItem.addEventListener('click', () => {
+            const details = resultItem.querySelector('.result-details');
+            details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        });
         resultsContainer.appendChild(resultItem);
     });
 }
