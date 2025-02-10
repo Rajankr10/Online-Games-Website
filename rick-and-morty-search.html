@@ -4,22 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rick and Morty Search</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .search-container {
-            margin: 20px;
-        }
-        .results-container {
-            margin: 20px;
-        }
-        .result-item {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="rick-and-morty.css">
 </head>
 <body>
     <div class="search-container">
@@ -33,6 +18,7 @@
         <div id="filters-container">
             <label for="name">Name:</label>
             <input type="text" id="name" placeholder="Name">
+            <div id="suggestions-container" class="suggestions-container"></div>
         </div>
         <button onclick="toggleAdditionalFilters()">Filter</button>
         <div id="additional-filters-container" style="display: none;">
@@ -41,6 +27,11 @@
         <button onclick="searchRickAndMorty()">Search</button>
     </div>
     <div class="results-container" id="results-container"></div>
+    <div class="pagination">
+        <button onclick="prevPage()">Previous</button>
+        <span id="page-info"></span>
+        <button onclick="nextPage()">Next</button>
+    </div>
 
     <script src="rick-and-morty.js"></script>
 </body>
