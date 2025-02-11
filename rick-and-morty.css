@@ -46,7 +46,7 @@ body {
   
   /**/
   header {
-    background: linear-gradient(135deg, #08172a, #0b2a5f51);
+    background: linear-gradient(135deg, #08172a, #0b2a5f);
     padding: 10px;
     box-shadow: 0px 5px 10px rgba(54, 54, 54, 0.5);
     z-index: 10;
