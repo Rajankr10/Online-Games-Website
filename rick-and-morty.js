@@ -1,7 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     updateFilters();
     document.getElementById('name').addEventListener('input', fetchSuggestions);
-    fetchAllCharacters();
+    document.getElementById('search-type').addEventListener('change', () => {
+        updateFilters();
+        fetchSuggestions();
+        fetchAllData();
+    });
+    fetchAllData();
 });
 
 let currentPage = 1;
@@ -74,10 +79,6 @@ async function fetchSuggestions() {
     const searchType = document.getElementById('search-type').value;
     const query = document.getElementById('name').value;
 
-    // if (query.length < 3) {
-    //     return; // Don't fetch suggestions for short queries
-    // }
-
     const response = await fetch(`https://rickandmortyapi.com/api/${searchType}/?name=${query}`);
     const data = await response.json();
     displaySuggestions(data.results);
@@ -99,11 +100,12 @@ function displaySuggestions(results) {
     });
 }
 
-async function fetchAllCharacters(page = 1) {
-    const response = await fetch(`https://rickandmortyapi.com/api/character/?page=${page}`);
+async function fetchAllData(page = 1) {
+    const searchType = document.getElementById('search-type').value;
+    const response = await fetch(`https://rickandmortyapi.com/api/${searchType}/?page=${page}`);
     const data = await response.json();
     totalPages = data.info.pages;
-    displayResults(data.results, 'character');
+    displayResults(data.results, searchType);
     updatePageInfo();
 }
 
@@ -114,14 +116,14 @@ function updatePageInfo() {
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
-        fetchAllCharacters(currentPage);
+        fetchAllData(currentPage);
     }
 }
 
 function nextPage() {
     if (currentPage < totalPages) {
         currentPage++;
-        fetchAllCharacters(currentPage);
+        fetchAllData(currentPage);
     }
 }
 
@@ -156,10 +158,10 @@ function displayResults(results, searchType) {
         const resultItem = document.createElement('div');
         resultItem.className = 'result-item';
         resultItem.innerHTML = `
-            <img src="${result.image || ''}" alt="${result.name}">
-            <h2 >${result.name}</h2>
-            <div class="result-details">
-                ${searchType === 'character' ? `
+            ${searchType === 'character' ? `
+                <img src="${result.image || ''}" alt="${result.name}">
+                <h2>${result.name}</h2>
+                <div class="result-details">
                     <p>Status: ${result.status}</p>
                     <p>Species: ${result.species}</p>
                     <p>Type: ${result.type || 'N/A'}</p>
@@ -168,16 +170,22 @@ function displayResults(results, searchType) {
                     <p>Location: ${result.location.name}</p>
                     <p>Episodes: ${result.episode.length}</p>
                     <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
-                ` : searchType === 'location' ? `
-                    <p>Type: ${result.type}</p>
+                </div>
+            ` : searchType === 'location' ? `
+                <h2>${result.name}</h2>
+                <div class="result-details">
                     <p>Dimension: ${result.dimension}</p>
+                    <p>Type: ${result.type}</p>
                     <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
-                ` : searchType === 'episode' ? `
+                </div>
+            ` : searchType === 'episode' ? `
+                <h2>${result.name}</h2>
+                <div class="result-details">
                     <p>Episode: ${result.episode}</p>
                     <p>Air Date: ${result.air_date}</p>
                     <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
-                ` : ''}
-            </div>
+                </div>
+            ` : ''}
         `;
         resultItem.addEventListener('click', () => {
             const details = resultItem.querySelector('.result-details');
