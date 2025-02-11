@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +8,7 @@
 </head>
 
 <body>
+
     <header>
         <div class="headbox">
             <div class="logo">
@@ -37,27 +37,26 @@
         <br>Apart from building gadgets, he takes his morally right but dimwit grandson Morty on absurd intergalactic adventures.</p>  
     </div>  
     <h5>Search for anything about Rick and Morty universe</h5>
-    <div class="search__container">
 
-    </div>
     <div class="search-container">
         <div class="search-controls">
-            <select class="select__css" id="search-type" onchange="updateFilters()">
+            <select class="select__css" id="search-type" onchange="updateFilters(); fetchSuggestions();">
                 <option value="character">Character</option>
                 <option value="location">Location</option>
                 <option value="episode">Episode</option>
             </select>
-            <div id="filters-container">
-                <input class="text__input" type="text" id="name" placeholder="Search for name">
+        <div id="filters-container">
+            <input class="text__input" type="text" id="name" placeholder="Search for name" oninput="fetchSuggestions()">
                 <div id="suggestions-container" class="suggestions-container"></div>
-            </div>
-            <button class="btn" onclick="toggleAdditionalFilters()">Filter</button>
-            <button class="btn" onclick="searchRickAndMorty()">Search</button>
         </div>
-            <div id="additional-filters-container" style="display: none;">
-                <!-- Additional filters will be dynamically added here -->
-            </div>
+        <button class="btn" onclick="toggleAdditionalFilters()">Filter</button>
+        <button class="btn" onclick="searchRickAndMorty()">Search</button>
+            
+            <!-- Additional filters will be dynamically added here -->
+        </div>
+        <div id="additional-filters-container" style="display: none;"></div>
     </div>
+
     <div class="results-container" id="results-container"></div>
     <div class="pagination">
         <button class="btn" onclick="prevPage()">Previous</button>
@@ -67,7 +66,7 @@
     <div class="container">
         <p>Made with &hearts; by Rajan & Aditya | &copy; 2025 Questify - All rights reserved.</p>
     </div>
+
     <script src="rick-and-morty.js"></script>
 </body>
-
 </html>
