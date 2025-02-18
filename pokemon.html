@@ -9,8 +9,21 @@
 <body>
     <div class="search-container">
         <h1>Search for a Pokémon</h1>
-        <input type="text" id="pokemon-name" placeholder="Enter Pokémon name">
+        <input type="text" id="pokemon-name" placeholder="Enter Pokémon name" oninput="showSuggestions()">
+        <div id="suggestions" class="suggestions"></div>
         <button onclick="searchPokemon()">Search</button>
+    </div>
+    <div class="filter-container">
+        <label for="species-filter">Filter by Species:</label>
+        <select id="species-filter" onchange="filterPokemon()">
+            <option value="">All</option>
+            <!-- Add species options dynamically -->
+        </select>
+        <label for="type-filter">Filter by Type:</label>
+        <select id="type-filter" onchange="filterPokemon()">
+            <option value="">All</option>
+            <!-- Add type options dynamically -->
+        </select>
     </div>
     <div id="pokemon-info" class="pokemon-info"></div>
 
