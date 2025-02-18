@@ -7,12 +7,58 @@
     <link rel="stylesheet" href="disney.css">
 </head>
 <body>
-    <div class="search-container">
+    <header>
+        <div class="headbox">
+            <div class="logo">
+                <img src="logo.png" alt="Questify">
+            </div>
+            <div class="search-box">
+                <form action="">
+                    <input type="text" name="search" id="srch" placeholder="Search">
+                    <button type="submit"><img src="search.png"> <!--<i class="fa fa-search">--></i></button>
+                </form>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="file:///D:/Project%207th%20sem/index.html?search=#">Home</a></li>
+                    <li><a href="file:///D:/Project%207th%20sem/games.html">Games</a></li>
+                    <li><a href="#">Store</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="image-logo">
+            <img src="disney-logo.png" alt="Disney">
+        </div>
+        <div class="para">
+        <p>It was founded by Walt Disney and his brother Roy as Walt Disney Productions in 1929 to incorporate their cartoon animation studio. 
+            <br>It produced short and full-length animated cartoons in the 1930s and 1940s, then expanded in the 1950s to make nature documentaries and live-action films as well as television programs.
+        </p>
+        </div>
         <h1>Search for a Disney Character</h1>
-        <input type="text" id="character-name" placeholder="Enter character name">
-        <button onclick="searchCharacter()">Search</button>
+        <div class="search-container">
+            <div class="search-controls">
+                <div id="filters-container">
+                    <input class="text__input" type="text" id="character-name" placeholder="Search for name">
+                    <button class="btn" onclick="searchCharacter()">Search</button>
+                </div>
+                    
+                    <!-- Additional filters will be dynamically added here -->
+                </div>
+        </div>
     </div>
+    
     <div id="character-info" class="character-info"></div>
+
+    <!---->
+    <div id="additional-filters-container" style="display: none;"></div>
+</div>
+
+<div class="container">
+    <p>Made with &hearts; by Rajan & Aditya | &copy; 2025 Questify - All rights reserved.</p>
+</div>
+    <!---->
 
     <script src="disney.js"></script>
 </body>
