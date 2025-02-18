@@ -225,3 +225,24 @@ body {
   color: #ffffff;
   padding: 10px;
 }
+
+.suggestions-container {
+  position: absolute; 
+  width: 26%; /* Make it as wide as the input field */
+  max-height: 200px; 
+  overflow-y: auto; 
+  background: white; /* Background color */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  border-radius: 5px; /* Rounded corners */
+  z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.suggestion-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:hover {
+  background: #f0f0f0;
+}
