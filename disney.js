@@ -83,16 +83,15 @@ async function searchCharacter() {
 
     try {
         const encodedCharacterName = characterName.replace(/ /g, '%20');
-        alert(encodedCharacterName);
         const response = await fetch(`https://api.disneyapi.dev/character?name=${encodedCharacterName}`);
         if (!response.ok) throw new Error('Character not found');
 
         const data = await response.json();
-        console.log('API Response:', data); // Debugging information
+
         if (Array.isArray(data.data)) {
             // Handle case where data.data is an array
             const characters = data.data;
-            console.log('Characters:', characters); // Debugging information
+        
 
             if (characters.length === 0) throw new Error('Character not found');
 
@@ -108,7 +107,6 @@ async function searchCharacter() {
         } else {
             // Handle case where data.data is a single object
             const characterData = data.data;
-            console.log('Character:', characterData); // Debugging information
 
             if (!characterData) throw new Error('Character not found');
 
