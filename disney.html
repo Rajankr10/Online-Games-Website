@@ -38,11 +38,13 @@
         </div>
         <h1>Search for a Disney Character</h1>
         <div class="search-container">
-            <div class="search-controls">
+            <div class="search-controls"style="position: relative;">
                 <div id="filters-container">
-                    <input class="text__input" type="text" id="character-name" placeholder="Search for name">
-                    <button class="btn" onclick="searchCharacter()">Search</button>
+                    <input class="text__input" type="text" id="character-name" placeholder="Search for name" oninput="showSuggestions()">
+                        <div id="suggestions-container" class="suggestions-container"></div>
+                    
                 </div>
+                <button class="btn" onclick="searchCharacter()">Search</button>
                     
                     <!-- Additional filters will be dynamically added here -->
                 </div>
@@ -50,6 +52,19 @@
     </div>
     
     <div id="character-info" class="character-info"></div>
+    <div class="pagination">
+        <button onclick="prevPage()">Previous</button>
+        <span id="page-info"></span>
+        <button onclick="nextPage()">Next</button>
+    </div>
+
+    <div id="character-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
 
     <!---->
     <div id="additional-filters-container" style="display: none;"></div>
