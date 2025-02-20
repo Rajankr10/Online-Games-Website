@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchPokemon();
     // Hide suggestions when clicking outside the input and suggestions container
     document.addEventListener('click', (event) => {
-        const suggestionsContainer = document.getElementById('suggestions');
+        const suggestionsContainer = document.getElementById('suggestions-container');
         const nameInput = document.getElementById('pokemon-name');
         if (!suggestionsContainer.contains(event.target) && event.target !== nameInput) {
             suggestionsContainer.innerHTML = '';
@@ -291,7 +291,7 @@ async function filterPokemon(page = 1) {
 
 async function showSuggestions() {
     const input = document.getElementById('pokemon-name').value.toLowerCase();
-    const suggestionsContainer = document.getElementById('suggestions');
+    const suggestionsContainer = document.getElementById('suggestions-container');
     suggestionsContainer.innerHTML = '';
 
     if (input.length < 2) {
