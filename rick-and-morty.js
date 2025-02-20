@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchAllData();
     });
     fetchAllData();
+
+    // Hide suggestions when clicking outside the input and suggestions container
+    document.addEventListener('click', (event) => {
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        const nameInput = document.getElementById('name');
+        if (!suggestionsContainer.contains(event.target) && event.target !== nameInput) {
+            suggestionsContainer.innerHTML = '';
+        }
+    });
 });
 
 let currentPage = 1;
