@@ -1,1 +1,46 @@
+.pokemon-item {
+    border: 1px solid #ccc;
+    padding: 16px;
+    margin: 16px 0;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
 
+.suggestion-item {
+    cursor: pointer;
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.pokemon-details-content {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    transition: all 0.5s ease;
+}
+
+.pokemon-details-image {
+    width: 150px;
+    height: 150px;
+    margin-right: 20px;
+    transition: transform 0.5s ease;
+}
+
+.pokemon-details-info {
+    flex: 1;
+}
+
+.show-details {
+    max-height: 500px; /* Adjust as needed */
+    overflow: hidden;
+}
+
+.show-details .pokemon-details-image {
+    transform: translateX(-50px);
+}
