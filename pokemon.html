@@ -7,20 +7,50 @@
     <link rel="stylesheet" href="pokemon.css">
 </head>
 <body>
+    <header>
+        <div class="headbox">
+            <div class="logo">
+                <img src="logo.png" alt="Questify">
+            </div>
+            <div class="search-box">
+                <form action="">
+                    <input type="text" name="search" id="srch" placeholder="Search">
+                    <button type="submit"><img src="search.png"> <!--<i class="fa fa-search">--></i></button>
+                </form>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="file:///D:/Project%207th%20sem/index.html?search=#">Home</a></li>
+                    <li><a href="file:///D:/Project%207th%20sem/games.html">Games</a></li>
+                    <li><a href="#">Store</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="image-logo">
+        <img src="pokemon-logo.png" alt="Pokemon">
+    </div>
+    <div class="para">
+    <p>Pokémon is a Japanese media franchise that includes video games, TV shows, movies, and trading cards. 
+        <br>The franchise is centered around fictional creatures called Pokémon, which humans catch and train to battle each other.  
+    </div>  
+    <h5>Search for a Pokémon</h5>
+    <!---->
+
     <div class="search-container">
-        <h1>Search for a Pokémon</h1>
-        <input type="text" id="pokemon-name" placeholder="Enter Pokémon name" oninput="showSuggestions()">
+        <div class="search-controls">
+        <input class="text" type="text" id="pokemon-name" placeholder="Enter Pokémon name" oninput="showSuggestions()">
         <div id="suggestions" class="suggestions"></div>
-        <button onclick="searchPokemon()">Search</button>
+        <button class="btn" onclick="searchPokemon()">Search</button>
     </div>
     <div class="filter-container">
         <label for="species-filter">Filter by Species:</label>
-        <select id="species-filter" onchange="filterPokemon()">
+        <select class="select__css" id="species-filter" onchange="filterPokemon()">
             <option value="">All</option>
             <!-- Add species options dynamically -->
         </select>
         <label for="type-filter">Filter by Type:</label>
-        <select id="type-filter" onchange="filterPokemon()">
+        <select class="select__css" id="type-filter" onchange="filterPokemon()">
             <option value="">All</option>
             <!-- Add type options dynamically -->
         </select>
@@ -32,6 +62,7 @@
         <span id="page-info"></span>
         <button onclick="nextPage()">Next</button>
     </div>
+
 
     <script src="pokemon.js"></script>
 </body>
