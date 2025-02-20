@@ -36,11 +36,10 @@
     </div>  
     <h5>Search for a Pokémon</h5>
     <!---->
-
     <div class="search-container">
-        <div class="search-controls">
+    <div class="search-controls">
         <input class="text" type="text" id="pokemon-name" placeholder="Enter Pokémon name" oninput="showSuggestions()">
-        <div id="suggestions" class="suggestions"></div>
+        <div id="suggestions-container" class="suggestions-container"></div>
         <button class="btn" onclick="searchPokemon()">Search</button>
     </div>
     <div class="filter-container">
@@ -55,12 +54,13 @@
             <!-- Add type options dynamically -->
         </select>
     </div>
+    </div>
     <div id="pokemon-info" class="pokemon-info"></div>
     <div id="pokemon-details" class="pokemon-details"></div>
     <div class="pagination" id="pagination">
-        <button onclick="prevPage()">Previous</button>
+        <button class="btn" onclick="prevPage()">Previous</button>
         <span id="page-info"></span>
-        <button onclick="nextPage()">Next</button>
+        <button class="btn" onclick="nextPage()">Next</button>
     </div>
 
 
