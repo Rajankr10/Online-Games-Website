@@ -9,6 +9,7 @@
   text-decoration: none;
 }
 
+
 :root {
   --primary: #ec994b;
   --white: #ffffff;
@@ -41,7 +42,7 @@ html {
 
 body {
     font-size: 1.6rem;
-    background: url("design.png");
+    background: url("rick-and-monty-bg.png");
   }
   
   /**/
@@ -285,17 +286,17 @@ label{
 }
 
 .suggestions-container {
-    border: 1px solid #680d0d;
+    width: 178px;
     max-height: 200px;
     overflow-y: auto;
     position: absolute;
     background-color: #333;
     color: #fff;
-    z-index: 1000;
-    
+    z-index: 1000;  
 }
 
 .suggestion-item {
+    font-size: 10px;
     padding: 10px;
     cursor: pointer;
 
