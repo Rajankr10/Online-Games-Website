@@ -246,3 +246,63 @@ body {
 .suggestion-item:hover {
   background: #f0f0f0;
 }
+
+
+.character-info{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  text-align: center;
+  overflow: hidden;
+}
+.character-info h2{
+  font-size: 25px;
+  margin-bottom: 10px;
+
+}
+.character-info img{
+  width: 100%;
+}
+
+.character-item{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: white;
+  min-width: 300px;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.character-card {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  padding: 16px;
+  margin: 16px 0;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.character-card-image {
+  width: 150px;
+  height: auto;
+  margin-right: 16px;
+}
+
+.character-card-details {
+  flex: 1;
+  min-width: 200px;
+}
+
+.character-card-details h2 {
+  margin-top: 0;
+}
+
+.character-card-details p {
+  margin: 4px 0;
+}
