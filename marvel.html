@@ -7,12 +7,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
-    <h1>Explore the Marvel Universe</h1>
+    <header>
+        <div class="headbox">
+            <div class="logo">
+                <img src="logo.png" alt="Questify">
+            </div>
+            <div class="search-box">
+                <form action="">
+                    <input type="text" name="search" id="srch" placeholder="Search">
+                    <button type="submit"><img src="search.png"> <!--<i class="fa fa-search">--></i></button>
+                </form>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="file:///D:/Project%207th%20sem/index.html?search=#">Home</a></li>
+                    <li><a href="file:///D:/Project%207th%20sem/games.html">Games</a></li>
+                    <li><a href="#">Store</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-    <div class="search-bar">
-        <input id="search-input" type="text" placeholder="Search..." oninput="showSuggestions()">
-        <button onclick="searchMarvelData()">Search</button>
-        <div id="suggestions" class="suggestions"></div>
+    <div class="image-logo">
+        <img src="marvel-logo.png" alt="Marvel">
+    </div>
+    <div class="para">
+    <p>
+        The Marvel Universe is a vast fictional world filled with superheroes, villains, and cosmic beings, created by Marvel Comics. 
+        <br>It features legendary characters like Spider-Man, Iron Man, Thor, and the Avengers, spanning comics, movies, and TV shows, shaping modern pop culture. 
+    </div>  
+    <h5>Explore the Marvel Universe</h5>
+
+    <div class="search-container">
+        <div class="search-controls">
+        <input class="text"id="search-input" type="text" placeholder="Search..." oninput="showSuggestions()">
+        <button class="btn" onclick="searchMarvelData()">Search</button>
+        <div id="suggestions-container" class="suggestions-container"></div>
+        </div>
     </div>
 
     <div class="tabs">
@@ -24,7 +55,8 @@
         <button data-category="creators" onclick="fetchMarvelDataWithReset('creators')">Creators</button>
     </div>
 
-    <div id="content"></div>
+    <div class="content" id="content"></div>
+    <div class="marvel-item-details" id="marvel-item-details"></div>
     <div id="pagination" class="pagination"></div>
 
     <script src="marvel.js"></script>
