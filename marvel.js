@@ -7,7 +7,7 @@ const baseUrl = 'https://gateway.marvel.com/v1/public';
 
 // Elements
 const contentDiv = document.getElementById('content');
-const suggestionsContainer = document.getElementById('suggestions');
+const suggestionsContainer = document.getElementById('suggestions-container');
 const paginationContainer = document.getElementById('pagination');
 
 // Pagination variables
@@ -51,7 +51,7 @@ function displayData(category, items, totalCount) {
         let itemContent = `
             <h2>${item.title || item.name || item.fullName}</h2>
             <img src="${item.thumbnail.path}.${item.thumbnail.extension}" alt="${item.title || item.name || item.fullName}">
-            <div class="marvel-item-details" style="display: none;">
+            <div class="marvel-item-details" id="marvel-item-details" style="display: none">
         `;
 
         switch (category) {
@@ -203,7 +203,7 @@ async function showSuggestions() {
     }
 }
 
-// 🕵️‍♂️ Fetch Data for Any Category with Reset
+// Fetch Data for Any Category with Reset
 function fetchMarvelDataWithReset(category) {
     currentPage = 1; // Reset to first page when switching categories
     currentSearchQuery = ''; // Clear search query on category change
@@ -213,7 +213,7 @@ function fetchMarvelDataWithReset(category) {
     fetchMarvelData(currentCategory, '', currentPage);
 }
 
-// 🕹️ Highlight Active Tab
+// Highlight Active Tab
 function updateActiveTab(category) {
     document.querySelectorAll('.tabs button').forEach(button => {
         button.classList.remove('active');
@@ -222,7 +222,7 @@ function updateActiveTab(category) {
     if (activeButton) activeButton.classList.add('active');
 }
 
-// 🔄 Toggle Details
+// Toggle Details
 function toggleDetails(itemDiv) {
     const detailsDiv = itemDiv.querySelector('.marvel-item-details');
     if (detailsDiv.style.display === 'none') {
@@ -234,7 +234,7 @@ function toggleDetails(itemDiv) {
 
 // Hide suggestions when clicking outside the input and suggestions container
 document.addEventListener('click', (event) => {
-    const suggestionsContainer = document.getElementById('suggestions');
+    const suggestionsContainer = document.getElementById('suggestions-container');
     const searchInput = document.getElementById('search-input');
 
     if (suggestionsContainer && !suggestionsContainer.contains(event.target) && event.target !== searchInput) {
