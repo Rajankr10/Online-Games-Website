@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Marvel Universe Explorer</title>
+    <link rel="stylesheet" href="marvel.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <h1>Explore the Marvel Universe</h1>
+
+    <div class="search-bar">
+        <input id="search-input" type="text" placeholder="Search..." oninput="showSuggestions()">
+        <button onclick="searchMarvelData()">Search</button>
+        <div id="suggestions" class="suggestions"></div>
+    </div>
+
+    <div class="tabs">
+        <button data-category="characters" onclick="fetchMarvelDataWithReset('characters')" class="active">Characters</button>
+        <button data-category="comics" onclick="fetchMarvelDataWithReset('comics')">Comics</button>
+        <button data-category="series" onclick="fetchMarvelDataWithReset('series')">Series</button>
+        <button data-category="stories" onclick="fetchMarvelDataWithReset('stories')">Stories</button>
+        <button data-category="events" onclick="fetchMarvelDataWithReset('events')">Events</button>
+        <button data-category="creators" onclick="fetchMarvelDataWithReset('creators')">Creators</button>
+    </div>
+
+    <div id="content"></div>
+    <div id="pagination" class="pagination"></div>
+
+    <script src="marvel.js"></script>
+</body>
+</html>
