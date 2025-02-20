@@ -1,7 +1,154 @@
 document.addEventListener('DOMContentLoaded', () => {
     populateTypeFilter();
     populateSpeciesFilter();
+    fetchPokemon();
+    // Hide suggestions when clicking outside the input and suggestions container
+    document.addEventListener('click', (event) => {
+        const suggestionsContainer = document.getElementById('suggestions');
+        const nameInput = document.getElementById('pokemon-name');
+        if (!suggestionsContainer.contains(event.target) && event.target !== nameInput) {
+            suggestionsContainer.innerHTML = '';
+        }
+    });
 });
+
+let currentPage = 1;
+const limit = 20;
+
+async function fetchPokemon(page = 1) {
+    const pokemonInfoContainer = document.getElementById('pokemon-info');
+    pokemonInfoContainer.innerHTML = '';
+
+    try {
+        const offset = (page - 1) * limit;
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`);
+        if (!response.ok) throw new Error('Failed to fetch Pokémon');
+
+        const data = await response.json();
+        const pokemonList = data.results;
+
+        if (pokemonList.length === 0) {
+            pokemonInfoContainer.innerHTML = '<p>No Pokémon found.</p>';
+            return;
+        }
+
+        for (const pokemon of pokemonList) {
+            const pokemonResponse = await fetch(pokemon.url);
+            const pokemonData = await pokemonResponse.json();
+
+            const pokemonElement = document.createElement('div');
+            pokemonElement.className = 'pokemon-item';
+            pokemonElement.onclick = (event) => {
+                event.stopPropagation();
+                togglePokemonDetails(pokemonElement, pokemonData);
+            };
+            pokemonElement.innerHTML = `
+                <h2>${pokemonData.name}</h2>
+                <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
+            `;
+            pokemonInfoContainer.appendChild(pokemonElement);
+        }
+
+        updatePagination(data.count);
+    } catch (error) {
+        pokemonInfoContainer.innerHTML = `<p>${error.message}</p>`;
+    }
+}
+
+function updatePagination(totalCount) {
+    const paginationContainer = document.getElementById('pagination');
+    paginationContainer.innerHTML = '';
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const prevButton = document.createElement('button');
+    prevButton.textContent = 'Previous';
+    prevButton.disabled = currentPage === 1;
+    prevButton.onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchPokemon(currentPage);
+        }
+    };
+    paginationContainer.appendChild(prevButton);
+
+    const pageInfo = document.createElement('span');
+    pageInfo.id = 'page-info';
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    paginationContainer.appendChild(pageInfo);
+
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next';
+    nextButton.disabled = currentPage === totalPages;
+    nextButton.onclick = () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            fetchPokemon(currentPage);
+        }
+    };
+    paginationContainer.appendChild(nextButton);
+}
+
+async function togglePokemonDetails(pokemonElement, pokemonData) {
+    const existingDetails = pokemonElement.querySelector('.pokemon-details-content');
+
+    // Close details if already open and prevent reopening immediately
+    if (existingDetails) {
+        pokemonElement.classList.remove('show-details');
+        existingDetails.remove();
+        return;
+    }
+
+    // Remove existing open details in other cards to ensure only one is open at a time
+    document.querySelectorAll('.pokemon-item.show-details').forEach(item => {
+        item.classList.remove('show-details');
+        const details = item.querySelector('.pokemon-details-content');
+        if (details) details.remove();
+    });
+
+    const pokemonDetailsContainer = document.createElement('div');
+    pokemonDetailsContainer.className = 'pokemon-details-content';
+
+    try {
+        const abilities = pokemonData.abilities.map(ability => ability.ability.name).join(', ');
+        const types = pokemonData.types.map(type => type.type.name).join(', ');
+
+        const speciesResponse = await fetch(pokemonData.species.url);
+        const speciesData = await speciesResponse.json();
+
+        const characteristics = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en').flavor_text;
+
+        // Fetch evolution chain
+        const evolutionChainResponse = await fetch(speciesData.evolution_chain.url);
+        const evolutionChainData = await evolutionChainResponse.json();
+        const evolutionChain = getEvolutionChain(evolutionChainData.chain);
+
+        // Fetch moves
+        const moves = pokemonData.moves.map(move => move.move.name).join(', ');
+
+        pokemonDetailsContainer.innerHTML = `
+            <div class="pokemon-details">
+                <div class="pokemon-details-info">
+                    <p><strong>Abilities:</strong> ${abilities}</p>
+                    <p><strong>Types:</strong> ${types}</p>
+                    <p><strong>Height:</strong> ${pokemonData.height}</p>
+                    <p><strong>Weight:</strong> ${pokemonData.weight}</p>
+                    <p><strong>Base Experience:</strong> ${pokemonData.base_experience}</p>
+                    <p><strong>Species:</strong> ${speciesData.name}</p>
+                    <p><strong>Characteristics:</strong> ${characteristics}</p>
+                    <p><strong>Evolution Chain:</strong> ${evolutionChain}</p> 
+                    <p><strong>Moves:</strong> ${moves}</p>
+                </div>
+            </div>
+        `;
+
+        pokemonElement.appendChild(pokemonDetailsContainer);
+        pokemonElement.classList.add('show-details');
+    } catch (error) {
+        pokemonDetailsContainer.innerHTML = `<p>${error.message}</p>`;
+    }
+}
+
 
 async function searchPokemon() {
     const pokemonName = document.getElementById('pokemon-name').value.toLowerCase();
@@ -20,35 +167,19 @@ async function searchPokemon() {
         }
         const pokemonData = await response.json();
 
-        const abilities = pokemonData.abilities.map(ability => ability.ability.name).join(', ');
-        const types = pokemonData.types.map(type => type.type.name).join(', ');
-
-        const speciesResponse = await fetch(pokemonData.species.url);
-        const speciesData = await speciesResponse.json();
-
-        const characteristics = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en').flavor_text;
-
-        // Fetch evolution chain
-        const evolutionChainResponse = await fetch(speciesData.evolution_chain.url);
-        const evolutionChainData = await evolutionChainResponse.json();
-        const evolutionChain = getEvolutionChain(evolutionChainData.chain);
-
-        // Fetch moves
-        const moves = pokemonData.moves.map(move => move.move.name).join(', ');
-
-        pokemonInfoContainer.innerHTML = `
+        const pokemonElement = document.createElement('div');
+        pokemonElement.className = 'pokemon-item';
+        pokemonElement.onclick = (event) => {
+            event.stopPropagation();
+            togglePokemonDetails(pokemonElement, pokemonData);
+        };
+        pokemonElement.innerHTML = `
             <h2>${pokemonData.name}</h2>
             <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
-            <p><strong>Abilities:</strong> ${abilities}</p>
-            <p><strong>Types:</strong> ${types}</p>
-            <p><strong>Height:</strong> ${pokemonData.height}</p>
-            <p><strong>Weight:</strong> ${pokemonData.weight}</p>
-            <p><strong>Base Experience:</strong> ${pokemonData.base_experience}</p>
-            <p><strong>Species:</strong> ${speciesData.name}</p>
-            <p><strong>Characteristics:</strong> ${characteristics}</p>
-            <p><strong>Evolution Chain:</strong> ${evolutionChain}</p> 
-            <p><strong>Moves:</strong> ${moves}</p>
         `;
+        pokemonInfoContainer.appendChild(pokemonElement);
+
+        togglePokemonDetails(pokemonElement, pokemonData);
     } catch (error) {
         pokemonInfoContainer.innerHTML = `<p>${error.message}</p>`;
     }
@@ -94,7 +225,7 @@ async function populateSpeciesFilter() {
     });
 }
 
-async function filterPokemon() {
+async function filterPokemon(page = 1) {
     const type = document.getElementById('type-filter').value;
     const species = document.getElementById('species-filter').value;
     const pokemonInfoContainer = document.getElementById('pokemon-info');
@@ -132,43 +263,27 @@ async function filterPokemon() {
             return;
         }
 
-        for (const pokemon of pokemonList) {
+        const offset = (page - 1) * limit;
+        const paginatedPokemonList = pokemonList.slice(offset, offset + limit);
+
+        for (const pokemon of paginatedPokemonList) {
             const pokemonResponse = await fetch(pokemon.url);
             const pokemonData = await pokemonResponse.json();
 
-            const abilities = pokemonData.abilities.map(ability => ability.ability.name).join(', ');
-            const types = pokemonData.types.map(type => type.type.name).join(', ');
-
-            const speciesResponse = await fetch(pokemonData.species.url);
-            const speciesData = await speciesResponse.json();
-
-            const characteristics = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en').flavor_text;
-
-            // Fetch evolution chain
-            const evolutionChainResponse = await fetch(speciesData.evolution_chain.url);
-            const evolutionChainData = await evolutionChainResponse.json();
-            const evolutionChain = getEvolutionChain(evolutionChainData.chain);
-
-            // Fetch moves
-            const moves = pokemonData.moves.map(move => move.move.name).join(', ');
-
             const pokemonElement = document.createElement('div');
             pokemonElement.className = 'pokemon-item';
+            pokemonElement.onclick = (event) => {
+                event.stopPropagation();
+                togglePokemonDetails(pokemonElement, pokemonData);
+            };
             pokemonElement.innerHTML = `
                 <h2>${pokemonData.name}</h2>
                 <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
-                <p><strong>Abilities:</strong> ${abilities}</p>
-                <p><strong>Types:</strong> ${types}</p>
-                <p><strong>Height:</strong> ${pokemonData.height}</p>
-                <p><strong>Weight:</strong> ${pokemonData.weight}</p>
-                <p><strong>Base Experience:</strong> ${pokemonData.base_experience}</p>
-                <p><strong>Species:</strong> ${speciesData.name}</p>
-                <p><strong>Characteristics:</strong> ${characteristics}</p>
-                <p><strong>Evolution Chain:</strong> ${evolutionChain}</p> 
-                <p><strong>Moves:</strong> ${moves}</p>
             `;
             pokemonInfoContainer.appendChild(pokemonElement);
         }
+
+        updatePagination(pokemonList.length);
     } catch (error) {
         pokemonInfoContainer.innerHTML = `<p>${error.message}</p>`;
     }
