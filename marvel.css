@@ -441,3 +441,9 @@ h1 {
   #page-info{
     color: #fff;
   }
+
+  .foot{
+    text-align: center;
+  color: #ffffff;
+  padding: 10px;
+  }
