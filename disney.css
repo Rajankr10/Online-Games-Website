@@ -42,7 +42,7 @@ html {
 
 body {
     font-size: 1.6rem;
-    background: url("design.png");
+    background: url("disney-bg.png");
   }
   
   /**/
@@ -259,21 +259,19 @@ body {
   overflow: hidden;
 }
 .character-info h2{
-  font-size: 25px;
+  font-size: 15px;
   margin-bottom: 10px;
 
 }
-.character-info img{
-  width: 100%;
-}
+
 
 .character-item{
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background-color: white;
-  min-width: 300px;
+  background: url("disney-sbg.png");
+  min-width: 3px;
   padding: 10px;
   border-radius: 10px;
 }
@@ -281,10 +279,11 @@ body {
 .character-card {
   display: flex;
   align-items: center;
+  border-radius: 15px;
   border: 1px solid #ccc;
   padding: 16px;
   margin: 16px 0;
-  background-color: #fff;
+  background: url("disney-sbg.png");
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -295,14 +294,34 @@ body {
 }
 
 .character-card-details {
+  align-items: left;
   flex: 1;
   min-width: 200px;
 }
 
 .character-card-details h2 {
   margin-top: 0;
+  font-size: 2rem;
 }
 
 .character-card-details p {
+  text-align: left;
   margin: 4px 0;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+}
+
+.pagination button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+#page-info{
+  color: #fff;
 }
