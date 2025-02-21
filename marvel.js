@@ -51,21 +51,27 @@ function displayData(category, items, totalCount) {
         let itemContent = `
             <h2>${item.title || item.name || item.fullName}</h2>
             <img src="${item.thumbnail.path}.${item.thumbnail.extension}" alt="${item.title || item.name || item.fullName}">
-            <div class="marvel-item-details" id="marvel-item-details" style="display: none">
+            <div class="marvel-item-details" id="marvel-item-details" style="display: none;">
         `;
 
         switch (category) {
             case 'characters':
                 itemContent += `
+                <div class="marvel-details">
+                <div class="marvel-details-info">
                     <p><strong>Description:</strong> ${item.description || 'No description available.'}</p>
                     <p><strong>Comics:</strong> ${item.comics.items.map(comic => comic.name).join(', ') || 'N/A'}</p>
                     <p><strong>Series:</strong> ${item.series.items.map(series => series.name).join(', ') || 'N/A'}</p>
                     <p><strong>Stories:</strong> ${item.stories.items.map(story => story.name).join(', ') || 'N/A'}</p>
                     <p><strong>Events:</strong> ${item.events.items.map(event => event.name).join(', ') || 'N/A'}</p>
+                </div>
+                </div>
                 `;
                 break;
             case 'comics':
                 itemContent += `
+                <div class="marvel-details">
+                <div class="marvel-details-info">
                     <p><strong>Issue Number:</strong> ${item.issueNumber}</p>
                     <p><strong>Description:</strong> ${item.description || 'No description available.'}</p>
                     <p><strong>Page Count:</strong> ${item.pageCount}</p>
@@ -74,10 +80,14 @@ function displayData(category, items, totalCount) {
                     <p><strong>Characters:</strong> ${item.characters.items.map(character => character.name).join(', ') || 'N/A'}</p>
                     <p><strong>Stories:</strong> ${item.stories.items.map(story => story.name).join(', ') || 'N/A'}</p>
                     <p><strong>Events:</strong> ${item.events.items.map(event => event.name).join(', ') || 'N/A'}</p>
+                </div>
+                </div>
                 `;
                 break;
             case 'series':
                 itemContent += `
+                <div class="marvel-details">
+                <div class="marvel-details-info">
                     <p><strong>Description:</strong> ${item.description || 'No description available.'}</p>
                     <p><strong>Start Year:</strong> ${item.startYear}</p>
                     <p><strong>End Year:</strong> ${item.endYear}</p>
@@ -86,10 +96,14 @@ function displayData(category, items, totalCount) {
                     <p><strong>Characters:</strong> ${item.characters.items.map(character => character.name).join(', ') || 'N/A'}</p>
                     <p><strong>Stories:</strong> ${item.stories.items.map(story => story.name).join(', ') || 'N/A'}</p>
                     <p><strong>Events:</strong> ${item.events.items.map(event => event.name).join(', ') || 'N/A'}</p>
+                </div>
+                </div>
                 `;
                 break;
             case 'stories':
                 itemContent += `
+                <div class="marvel-details">
+                <div class="marvel-details-info">
                     <p><strong>Description:</strong> ${item.description || 'No description available.'}</p>
                     <p><strong>Type:</strong> ${item.type}</p>
                     <p><strong>Comics:</strong> ${item.comics.items.map(comic => comic.name).join(', ') || 'N/A'}</p>
@@ -97,10 +111,14 @@ function displayData(category, items, totalCount) {
                     <p><strong>Characters:</strong> ${item.characters.items.map(character => character.name).join(', ') || 'N/A'}</p>
                     <p><strong>Creators:</strong> ${item.creators.items.map(creator => creator.name).join(', ') || 'N/A'}</p>
                     <p><strong>Events:</strong> ${item.events.items.map(event => event.name).join(', ') || 'N/A'}</p>
+                </div>
+                </div>
                 `;
                 break;
             case 'events':
                 itemContent += `
+                <div class="marvel-details">
+                <div class="marvel-details-info">
                     <p><strong>Description:</strong> ${item.description || 'No description available.'}</p>
                     <p><strong>Start:</strong> ${item.start}</p>
                     <p><strong>End:</strong> ${item.end}</p>
@@ -109,14 +127,20 @@ function displayData(category, items, totalCount) {
                     <p><strong>Stories:</strong> ${item.stories.items.map(story => story.name).join(', ') || 'N/A'}</p>
                     <p><strong>Characters:</strong> ${item.characters.items.map(character => character.name).join(', ') || 'N/A'}</p>
                     <p><strong>Creators:</strong> ${item.creators.items.map(creator => creator.name).join(', ') || 'N/A'}</p>
+                </div>
+                </div>
                 `;
                 break;
             case 'creators':
                 itemContent += `
-                                        <p><strong>Comics:</strong> ${item.comics.items.map(comic => comic.name).join(', ') || 'N/A'}</p>
+                <div class="marvel-details">
+                <div class="marvel-details-info">
+                    <p><strong>Comics:</strong> ${item.comics.items.map(comic => comic.name).join(', ') || 'N/A'}</p>
                     <p><strong>Series:</strong> ${item.series.items.map(series => series.name).join(', ') || 'N/A'}</p>
                     <p><strong>Stories:</strong> ${item.stories.items.map(story => story.name).join(', ') || 'N/A'}</p>
                     <p><strong>Events:</strong> ${item.events.items.map(event => event.name).join(', ') || 'N/A'}</p>
+                </div>
+                </div>
                 `;
                 break;
             default:
@@ -222,15 +246,33 @@ function updateActiveTab(category) {
     if (activeButton) activeButton.classList.add('active');
 }
 
-// Toggle Details
+
+/*-------------*/
+// Toggle between small and large container
 function toggleDetails(itemDiv) {
     const detailsDiv = itemDiv.querySelector('.marvel-item-details');
-    if (detailsDiv.style.display === 'none') {
+
+    // Close all other open details
+    document.querySelectorAll('.marvel-item').forEach(div => {
+        if (div !== itemDiv) {
+            div.classList.remove('expanded'); // Remove expanded class from other items
+            div.querySelector('.marvel-item-details').style.display = 'none';
+        }
+    });
+
+    // Toggle the clicked item's size and details visibility
+    if (detailsDiv.style.display === 'none' || !detailsDiv.style.display) {
         detailsDiv.style.display = 'block';
+        itemDiv.classList.add('expanded'); // Add expanded class for styling
     } else {
         detailsDiv.style.display = 'none';
+        itemDiv.classList.remove('expanded'); // Remove expanded class
     }
 }
+
+
+/*-------------*/
+
 
 // Hide suggestions when clicking outside the input and suggestions container
 document.addEventListener('click', (event) => {
