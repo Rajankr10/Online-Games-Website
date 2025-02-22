@@ -1,7 +1,25 @@
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize Firestore and Authentication
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+let favoriteIds = new Set();
+
+document.addEventListener('DOMContentLoaded', async() => {
     populateTypeFilter();
     populateSpeciesFilter();
-    fetchPokemon();
+    // await loadFavorites();
+    // fetchPokemon();
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            await loadFavorites(user.uid);
+            fetchPokemon();
+        } else {
+            favoriteIds.clear();
+            fetchPokemon();
+        }
+    });
+
     // Hide suggestions when clicking outside the input and suggestions container
     document.addEventListener('click', (event) => {
         const suggestionsContainer = document.getElementById('suggestions-container');
@@ -12,6 +30,75 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+async function loadFavorites(showName = 'Pokemon') {
+    const user = auth.currentUser;
+    favoriteIds.clear();
+
+    if (!user) return;
+    const userId = user.uid;
+
+    try {
+        const snapshot = await db.collection('favorites')
+            .doc(userId)
+            .collection("items")
+            .where("showName", "==", 'Pokemon')
+            .get();
+        
+        console.log("Fetched favorites snapshot size:", snapshot.size);
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            console.log("Favorite data:", data);
+            const compositeId = `Pokemon_${data.id}`;
+            favoriteIds.add(compositeId);
+        });
+        console.log("Loaded favorites for", showName, ":", favoriteIds);
+    } catch (error) {
+        console.error('Failed to load favorites:', error);
+    }
+}
+
+// Add or Remove from Favorites using Composite ID
+async function addToFavorites(id, name, image, type, iconContainer) {
+    const user = auth.currentUser;
+
+    if (!user) {
+        alert('Please log in to manage favorites.');
+        return;
+    }
+
+    const userId = user.uid;
+    const compositeId = `Pokemon_${id}`; // Composite ID for Pokémon favorites
+    const favoriteRef = db.collection("favorites").doc(userId).collection("items").doc(compositeId);
+
+    try {
+        const doc = await favoriteRef.get();
+        if (doc.exists) {
+            await favoriteRef.delete();
+            iconContainer.classList.remove('favorited');
+            favoriteIds.delete(compositeId); // Update the local set
+            alert(`${name} removed from favorites.`);
+        } else {
+            await favoriteRef.set({
+                id,
+                name,
+                type,
+                image,
+                userId,
+                showName: 'Pokemon',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            iconContainer.classList.add('favorited');
+            favoriteIds.add(compositeId);
+            alert(`${name} added to favorites!`);
+        }
+    } catch (error) {
+        console.error("Error updating favorites:", error);
+        alert("Failed to update favorite.");
+    }
+}
+
+
 let currentPage = 1;
 const limit = 20;
 
@@ -20,17 +107,12 @@ async function fetchPokemon(page = 1) {
     pokemonInfoContainer.innerHTML = '';
 
     try {
-        const offset = (page - 1) * limit;
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`);
+        const offset = (page - 1) * 20;
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=20`);
         if (!response.ok) throw new Error('Failed to fetch Pokémon');
 
         const data = await response.json();
         const pokemonList = data.results;
-
-        if (pokemonList.length === 0) {
-            pokemonInfoContainer.innerHTML = '<p>No Pokémon found.</p>';
-            return;
-        }
 
         for (const pokemon of pokemonList) {
             const pokemonResponse = await fetch(pokemon.url);
@@ -42,18 +124,31 @@ async function fetchPokemon(page = 1) {
                 event.stopPropagation();
                 togglePokemonDetails(pokemonElement, pokemonData);
             };
+
+            const compositeId = `Pokemon_${pokemonData.id}`;
+            const isFavorited = favoriteIds.has(compositeId);
+
             pokemonElement.innerHTML = `
+                <div class="favorite-icon ${isFavorited ? 'favorited' : ''}" 
+                    onclick="event.stopPropagation(); addToFavorites(
+                    '${pokemonData.id}',
+                    '${pokemonData.name}',
+                    '${pokemonData.sprites.front_default}',
+                    'Pokemon', 
+                    this)">
+                    <i class="fa-regular fa-heart"></i>
+                </div>
                 <h2>${pokemonData.name}</h2>
                 <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
             `;
+
             pokemonInfoContainer.appendChild(pokemonElement);
         }
-
-        updatePagination(data.count);
     } catch (error) {
-        pokemonInfoContainer.innerHTML = `<p>${error.message}</p>`;
+        console.error('Failed to fetch Pokémon:', error);
     }
 }
+
 
 function updatePagination(totalCount) {
     const paginationContainer = document.getElementById('pagination');
@@ -173,7 +268,20 @@ async function searchPokemon() {
             event.stopPropagation();
             togglePokemonDetails(pokemonElement, pokemonData);
         };
+
+        const compositeId = `Pokemon_${pokemonData.id}`;
+        const isFavorited = favoriteIds.has(compositeId);
+
         pokemonElement.innerHTML = `
+        <div class="favorite-icon ${isFavorited ? 'favorited' : ''}" 
+                    onclick="event.stopPropagation(); addToFavorites(
+                    '${pokemonData.id}',
+                    '${pokemonData.name}',
+                    '${pokemonData.sprites.front_default}',
+                    'Pokemon', 
+                    this)">
+                    <i class="fa-regular fa-heart"></i>
+                </div>
             <h2>${pokemonData.name}</h2>
             <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
         `;
@@ -276,7 +384,20 @@ async function filterPokemon(page = 1) {
                 event.stopPropagation();
                 togglePokemonDetails(pokemonElement, pokemonData);
             };
+
+            const compositeId = `Pokemon_${pokemonData.id}`;
+            const isFavorited = favoriteIds.has(compositeId);
+
             pokemonElement.innerHTML = `
+            <div class="favorite-icon ${isFavorited ? 'favorited' : ''}" 
+                    onclick="event.stopPropagation(); addToFavorites(
+                    '${pokemonData.id}',
+                    '${pokemonData.name}',
+                    '${pokemonData.sprites.front_default}',
+                    'Pokemon', 
+                    this)">
+                    <i class="fa-regular fa-heart"></i>
+                </div>
                 <h2>${pokemonData.name}</h2>
                 <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
             `;
