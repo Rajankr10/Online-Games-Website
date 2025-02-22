@@ -1,12 +1,30 @@
+// Initialize Firestore and Authentication
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+let favoriteIds = new Set();
+
 document.addEventListener('DOMContentLoaded', () => {
     updateFilters();
     document.getElementById('name').addEventListener('input', fetchSuggestions);
-    document.getElementById('search-type').addEventListener('change', () => {
+    document.getElementById('search-type').addEventListener('change', async() => {
+        const searchType = document.getElementById('search-type').value;
+        const showName = 'Rick and Morty';
         updateFilters();
         fetchSuggestions();
+        await loadFavorites(searchType,showName);
         fetchAllData();
     });
-    fetchAllData();
+
+    // Listen for authentication state changes
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const searchType = document.getElementById('search-type').value;
+            const showName = 'Rick and Morty';
+            await loadFavorites(searchType,showName);
+            fetchAllData(); 
+        }
+    });
 
     // Hide suggestions when clicking outside the input and suggestions container
     document.addEventListener('click', (event) => {
@@ -17,6 +35,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+async function loadFavorites(searchType,showName) {
+    const user = auth.currentUser;
+    favoriteIds.clear(); // Clear previous favorites
+
+    if (!user) return;
+
+    const userId = user.uid;
+    try{
+        const favoritesSnapshot = await db.collection("favorites")
+        .doc(userId)
+        .collection("items")
+        .where("type" ,"==", searchType)
+        .where("showName","==",showName)
+        .get();
+
+        favoritesSnapshot.forEach(doc => {
+            favoriteIds.add(doc.id);
+    });
+        console.log("Loaded favorites for type", searchType, ":", favoriteIds);
+        } catch (error) {
+            console.error("Error loading favorites:", error);
+        }
+};
+
+async function addToFavorites(id, name, type, image,iconContainer) {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("You must be logged in to add favorites.");
+        return;
+    }
+
+    const userId = user.uid;
+    const compositeId = `RickAndMorty_${id};` // Create a unique ID for the favorite
+    const favoriteRef = db.collection("favorites").doc(userId).collection("items").doc(compositeId);
+
+    try {
+        const doc = await favoriteRef.get();
+        if (doc.exists) {
+            await favoriteRef.delete();
+            iconContainer.classList.remove('favorited');
+            favoriteIds.delete(compositeId); // Remove from local set
+            alert(`${name} removed from favorites.`);
+        } else {
+            await favoriteRef.set({
+                id,
+                name,
+                type,
+                image,
+                userId,
+                showName:'Rick and Morty',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            iconContainer.classList.toggle('favorited');
+            favoriteIds.add(compositeId);
+            alert(`${name} added to favorites!`);
+        }
+    } catch (error) {
+        console.error("Error adding favorite:", error);
+        alert("Failed to add favorite.");
+    }
+}
 
 let currentPage = 1;
 let totalPages = 1;
@@ -160,13 +240,25 @@ async function searchRickAndMorty() {
     displayResults(data.results, searchType);
 }
 
-function displayResults(results, searchType) {
+async function displayResults(results, searchType) {
     const resultsContainer = document.getElementById('results-container');
     resultsContainer.innerHTML = '';
-    results.forEach(result => {
+
+    for (const result of results) {
         const resultItem = document.createElement('div');
         resultItem.className = 'result-item';
-        resultItem.innerHTML = `
+
+        const compositeId = `RickAndMorty_${result.id};`
+
+        const isFavorited = favoriteIds.has(compositeId);
+
+        const defaultLocationImage = 'rick-and-morty-logo.png'; // Replace with your actual default image path
+        const defaultEpisodeImage = 'rick-and-morty-logo.png'; // Replace with your actual default image path
+
+        resultItem.innerHTML = `    
+        <div class="favorite-icon ${isFavorited ? 'favorited' : ''}"onclick="addToFavorites('${result.id}', '${result.name}', '${searchType}', '${result.image}',this)" >
+            <i class="fa-regular fa-heart"></i>
+        </div>
             ${searchType === 'character' ? `
                 <img src="${result.image || ''}" alt="${result.name}">
                 <h2>${result.name}</h2>
@@ -181,13 +273,15 @@ function displayResults(results, searchType) {
                     <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
                 </div>
             ` : searchType === 'location' ? `
+                <img src= "${defaultLocationImage}" alt="Location">
                 <h2>${result.name}</h2>
                 <div class="result-details">
                     <p>Dimension: ${result.dimension}</p>
                     <p>Type: ${result.type}</p>
                     <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
                 </div>
-            ` : searchType === 'episode' ? `
+            ` : searchType === 'episode' ? `\
+                <img src= "${defaultLocationImage}" alt="Location">
                 <h2>${result.name}</h2>
                 <div class="result-details">
                     <p>Episode: ${result.episode}</p>
@@ -196,10 +290,6 @@ function displayResults(results, searchType) {
                 </div>
             ` : ''}
         `;
-        resultItem.addEventListener('click', () => {
-            const details = resultItem.querySelector('.result-details');
-            details.style.display = details.style.display === 'none' ? 'block' : 'none';
-        });
         resultsContainer.appendChild(resultItem);
-    });
+    }
 }
