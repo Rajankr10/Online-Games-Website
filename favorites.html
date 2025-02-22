@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Favorites</title>
+    <link rel="stylesheet" href="favorites.css">
+</head>
+<body>
+    <header>
+        <h1>Your Favorites</h1>
+        <nav>
+            <a href="rick-and-morty-search.html">Back to Search</a>
+        </nav>
+    </header>    
+        <div id="favorites-page" >
+            <h1>Favorites</h1>
+            
+            <section id="rickandmorty-section">
+                <h2>Rick and Morty</h2>
+                <div class="results-container" id="rickandmorty-results"></div>
+            </section>
+            
+            <section id="disney-section">
+                <h2><a href="disney.html">Disney</a></h2>
+                <div class="results-container" id="disney-results"></div>
+            </section>
+            
+            <section id="pokemon-section">
+                <h2><a href="pokemon.html">Pokemon</a></h2>
+                <div class="results-container" id="pokemon-results"></div>
+            </section>
+            
+            <section id="marvel-section">
+                <h2><a href="marvel.html">Marvel</a></h2>
+                <div class="results-container" id="marvel-results"></div>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore-compat.js"></script>
+
+    <!-- Your Firebase Config -->
+    <script src="firebase-config.js"></script>
+    <script src="favorites.js"></script>
+</body>
+</html>
