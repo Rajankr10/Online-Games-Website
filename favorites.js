@@ -99,10 +99,10 @@ async function displayFavoritesPokemon(user) {
         snapshot.forEach(doc => {
             const favorite = doc.data();
 
-            const favoriteElement = document.createElement('div');
-            favoriteElement.className = 'favorite-item';
+            const card = document.createElement('div');
+            card.className = 'favorite-card';
 
-            favoriteElement.innerHTML = `
+            card.innerHTML = `
                 <div class="favorite-content">
                     <h2>${favorite.name}</h2>
                     <img src="${favorite.image}" alt="${favorite.name}">
@@ -113,7 +113,7 @@ async function displayFavoritesPokemon(user) {
                 </div>
             `;
 
-            favoritesContainer.appendChild(favoriteElement);
+            favoritesContainer.appendChild(card);
         });
 
     } catch (error) {
@@ -207,7 +207,6 @@ async function removeFavoritesMarvel(event, itemId) {
         alert("Failed to remove favorite.");
     }
 }
-
 
 async function displayFavoritesDisney(user) {
     const userId = user.uid;
