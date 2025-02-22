@@ -10,6 +10,100 @@ const contentDiv = document.getElementById('content');
 const suggestionsContainer = document.getElementById('suggestions-container');
 const paginationContainer = document.getElementById('pagination');
 
+
+// Initialize Firestore and Authentication
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+let favoriteIds = new Set();
+
+document.addEventListener('DOMContentLoaded', async () => {
+    auth.onAuthStateChanged(async (user) => {
+        if(user) {
+            await loadFavorites('characters');
+            fetchMarvelDataWithReset('characters');
+        } else{
+            favoriteIds.clear();
+            fetchMarvelDataWithReset('characters');
+        }
+    });
+
+    // Hide suggestions when clicking outside the input and suggestions container
+    document.addEventListener('click', (event) => {
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        const searchInput = document.getElementById('search-input');
+        if (suggestionsContainer && !suggestionsContainer.contains(event.target) && event.target !== searchInput) {
+            suggestionsContainer.innerHTML = '';
+        }
+    });
+});
+
+
+async function loadFavorites(searchType) {
+    const user = auth.currentUser;
+    favoriteIds.clear(); // Clear previous favorites
+
+    if (!user) return;
+
+    const userId = user.uid;
+    try{
+        const favoritesSnapshot = await db.collection("favorites")
+        .doc(userId)
+        .collection("items")
+        .where("type" ,"==", searchType)
+        .where("showName","==", 'Marvel')
+        .get();
+
+        favoritesSnapshot.forEach(doc => {
+            data = doc.data();
+            const compositeId =`Marvel_${data.id}` 
+            favoriteIds.add(compositeId);
+    });
+        console.log("Loaded favorites for type", searchType, ":", favoriteIds);
+        } catch (error) {
+            console.error("Error loading favorites:", error);
+        }
+};
+
+async function addToFavorites(event, type, id,name,image, iconContainer) {
+    event.stopPropagation(); // Prevent card click event from triggering
+    const user = auth.currentUser;
+    if (!user) {
+        alert("You must be logged in to add favorites.");
+        return;
+    }
+
+    const userId = user.uid;
+    const compositeId = `Marvel_${id};` // Create a unique ID for the favorite
+    const favoriteRef = db.collection("favorites").doc(userId).collection("items").doc(compositeId);
+
+    try {
+        const doc = await favoriteRef.get();
+        if (doc.exists) {
+            await favoriteRef.delete();
+            iconContainer.classList.remove('favorited');
+            favoriteIds.delete(compositeId); // Remove from local set
+            alert(`${name} removed from favorites.`);
+        } else {
+            await favoriteRef.set({
+                id,
+                name,
+                type,
+                image,
+                userId,
+                showName:'Marvel',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            iconContainer.classList.add('favorited');
+            favoriteIds.add(compositeId);
+            alert(`${name} added to favorites!`);
+        }
+    } catch (error) {
+        console.error("Error adding favorite:", error);
+        alert("Failed to add favorite.");
+    }
+}
+
 // Pagination variables
 let currentPage = 1;
 const limit = 20;
@@ -48,9 +142,23 @@ function displayData(category, items, totalCount) {
         itemDiv.className = 'marvel-item';
         itemDiv.onclick = () => toggleDetails(itemDiv);
 
+        const isFavorited = favoriteIds.has(`Marvel_${item.id}`);
+        const thumbnail = item.thumbnail || {}; // Default to an empty object if thumbnail is null
+        const imageUrl = (thumbnail.path && thumbnail.extension) 
+            ? `${thumbnail.path}.${thumbnail.extension}` 
+            : 'Marvel-logo.png'; // Fallback image
+
+
+        // const imageUrl = `${item.thumbnail.path}.${item.thumbnail.extension}`;
+
         let itemContent = `
+        <div class="favorite-icon ${isFavorited ? 'favorited' : ''}"
+        onclick="addToFavorites(event, '${currentCategory}', '${item.id}','${item.name || item.title}','${imageUrl}',this)" >
+            <i class="fa-regular fa-heart"></i>
+        </div>
             <h2>${item.title || item.name || item.fullName}</h2>
-            <img src="${item.thumbnail.path}.${item.thumbnail.extension}" alt="${item.title || item.name || item.fullName}">
+            <img src="${imageUrl}" alt="${item.title || item.name || item.fullName}">
+
             <div class="marvel-item-details" id="marvel-item-details" style="display: none;">
         `;
 
@@ -269,20 +377,3 @@ function toggleDetails(itemDiv) {
         itemDiv.classList.remove('expanded'); // Remove expanded class
     }
 }
-
-
-/*-------------*/
-
-
-// Hide suggestions when clicking outside the input and suggestions container
-document.addEventListener('click', (event) => {
-    const suggestionsContainer = document.getElementById('suggestions-container');
-    const searchInput = document.getElementById('search-input');
-
-    if (suggestionsContainer && !suggestionsContainer.contains(event.target) && event.target !== searchInput) {
-        suggestionsContainer.innerHTML = '';
-    }
-});
-
-// Initial fetch for default category
-fetchMarvelDataWithReset('characters');
