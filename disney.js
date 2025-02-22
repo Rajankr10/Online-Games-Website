@@ -1,10 +1,19 @@
+// Ensure Firebase is initialized correctly
+const auth = firebase.auth();
+const db = firebase.firestore();
+let favoriteIds = new Set();
 let currentPage = 1;
 const totalPages = 149;
 let previousState = null;
 let currentSearchQuery = '';
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchCharacters();
+document.addEventListener('DOMContentLoaded', async () => {
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            await loadFavorites();
+        }
+        fetchCharacters();
+    });
 
     // Hide suggestions when clicking outside the input and suggestions container
     document.addEventListener('click', (event) => {
@@ -17,6 +26,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+async function loadFavorites() {
+    const user = auth.currentUser;
+    favoriteIds.clear(); // Clear previous favorites
+
+    if (!user) return;
+
+    const userId = user.uid;
+    try {
+        const favoritesSnapshot = await db.collection("favorites")
+            .doc(userId)
+            .collection("items")
+            .where("showName", "==", "Disney")
+            .where("type", "==", "character")
+            .get();
+
+        favoritesSnapshot.forEach((doc) => {
+            const data = doc.data();
+            const compositeId = `Disney_${data.id}` 
+            favoriteIds.add(compositeId);
+        });
+        console.log("Favorites loaded:", favoriteIds);
+    } catch (error) {
+        console.error("Error fetching favorites:", error);
+        alert("Failed to load favorites.");
+    }
+}
+
+async function addToFavorites(id, name, type, image, iconContainer) {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("You must be logged in to add favorites.");
+        return;
+    }
+
+    const userId = user.uid;
+    const compositeId = `Disney_${id}`; // Create a unique ID for the favorite
+    const favoriteRef = db.collection("favorites").doc(userId).collection("items").doc(compositeId);
+
+    try {
+        const doc = await favoriteRef.get();
+        if (doc.exists) {
+            await favoriteRef.delete();
+            iconContainer.classList.remove('favorited');
+            favoriteIds.delete(compositeId); // Remove from local set
+            alert(`${name} removed from favorites.`);
+        } else {
+            await favoriteRef.set({
+                id,
+                name,
+                type,
+                image,
+                userId,
+                showName: 'Disney',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            iconContainer.classList.add('favorited');
+            favoriteIds.add(compositeId); // Add to local set
+            alert(`${name} added to favorites!`);
+        }
+    } catch (error) {
+        console.error("Error adding favorite:", error);
+        alert("Failed to add favorite.");
+    }
+}
+
+
 async function fetchCharacters(page = 1) {
     const characterInfoContainer = document.getElementById('character-info');
     characterInfoContainer.innerHTML = '';
@@ -24,7 +99,7 @@ async function fetchCharacters(page = 1) {
     try {
         const response = await fetch(`https://api.disneyapi.dev/character?page=${page}`);
         if (!response.ok) throw new Error('Failed to fetch characters');
-        
+
         const data = await response.json();
         const characters = Array.isArray(data.data) ? data.data : [];
 
@@ -35,16 +110,18 @@ async function fetchCharacters(page = 1) {
 
         characters.forEach(characterData => {
             if (!characterData.imageUrl) return;
-
             const characterElement = document.createElement('div');
             characterElement.className = 'character-item';
+            characterElement.dataset.characterId = characterData._id; // Add character ID
             const characterDataStr = JSON.stringify(characterData).replace(/'/g, "");
             characterElement.innerHTML = `
-                <div onclick='displayCharacterDetails(${characterDataStr})'> 
+                <div class="favorite-icon" onclick="toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
+                    <i class="${favoriteIds.has(`Disney_${characterData._id}`) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                </div>
+                <div onclick='displayCharacterDetails(${characterDataStr})'>
                     <h2>${characterData.name}</h2>
                     <img src="${characterData.imageUrl}" alt="${characterData.name}">
                 </div>
-                <div class="character__item__details" style="display: none;" ></div>
             `;
             characterInfoContainer.appendChild(characterElement);
         });
@@ -53,6 +130,10 @@ async function fetchCharacters(page = 1) {
     } catch (error) {
         characterInfoContainer.innerHTML = `<p>${error.message}</p>`;
     }
+}
+
+async function toggleFavorite(id, name, type, image, iconContainer) {
+    await addToFavorites(id, name, type, image, iconContainer);
 }
 
 function prevPage() {
@@ -95,17 +176,20 @@ async function searchCharacter() {
         const data = await response.json();
 
         if (Array.isArray(data.data)) {
-            // Handle case where data.data is an array
             const characters = data.data;
-        
 
             if (characters.length === 0) throw new Error('Character not found');
 
             characters.forEach(characterData => {
                 const characterElement = document.createElement('div');
                 characterElement.className = 'character-item';
+                characterElement.dataset.characterId = characterData._id; // Add character ID
                 const characterDataStr = JSON.stringify(characterData).replace(/'/g, "");
                 characterElement.innerHTML = `
+                    <div class="favorite-icon" onclick="toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
+                        <i class="${favoriteIds.has(`Disney_${characterData._id}`) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+
+                    </div>
                     <div onclick='displayCharacterDetails(${characterDataStr})'>
                         <h2>${characterData.name}</h2>
                         <img src="${characterData.imageUrl}" alt="${characterData.name}">
@@ -114,16 +198,19 @@ async function searchCharacter() {
                 characterInfoContainer.appendChild(characterElement);
             });
         } else {
-            // Handle case where data.data is a single object
             const characterData = data.data;
 
             if (!characterData) throw new Error('Character not found');
 
             const characterElement = document.createElement('div');
             characterElement.className = 'character-item';
+            characterElement.dataset.characterId = characterData._id; // Add character ID
             const characterDataStr = JSON.stringify(characterData).replace(/'/g, "");
-                characterElement.innerHTML = `
-                    <div onclick='displayCharacterDetails(${characterDataStr})'>
+            characterElement.innerHTML = `
+                <div class="favorite-icon" onclick="toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
+                    <i class="${favoriteIds.has(characterData._id) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                </div>
+                <div onclick='displayCharacterDetails(${characterDataStr})'>
                     <h2>${characterData.name}</h2>
                     <img src="${characterData.imageUrl}" alt="${characterData.name}">
                 </div>
@@ -134,6 +221,8 @@ async function searchCharacter() {
         characterInfoContainer.innerHTML = `<p>${error.message}</p>`;
     }
 }
+
+// Other functions (showSuggestions, openModal, closeModal, displayCharacterDetails, goBack) remain unchanged
 
 async function showSuggestions() {
     const input = document.getElementById('character-name').value.trim().toLowerCase();
@@ -176,6 +265,9 @@ async function openModal(characterId) {
         const modal = document.getElementById('character-modal');
         const modalBody = document.getElementById('modal-body');
         modalBody.innerHTML = `
+        <div class="favorite-icon" onclick="toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
+                    <i class="${favoriteIds.has(characterData._id) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                </div>
             <h2>${characterData.name}</h2>
             <img src="${characterData.imageUrl}" alt="${characterData.name}">
             <p><strong>Films:</strong> ${characterData.films?.join(', ') || 'N/A'}</p>
@@ -222,6 +314,9 @@ function displayCharacterDetails(characterData) {
     };
 
     characterInfoContainer.innerHTML = `
+    <div class="favorite-icon" onclick="toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
+                    <i class="${favoriteIds.has(characterData._id) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                </div>
         <div class="character-card" onclick="goBack()">
             <img src="${characterData.imageUrl}" alt="${characterData.name}" class="character-card-image">
             <div class="character-card-details">
