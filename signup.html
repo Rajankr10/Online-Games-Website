@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToonTonic</title>
+    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="sign-up.css">
+  </head>
+<body>
+    <header>
+        <div class="headbox">
+            <div class="logo">
+                <img src="toontonic-logo.png" alt="ToonTonic">              
+            </div>
+            <div class="search-box">
+              <form action="">
+                <input type="text" name="search" id="srch" placeholder="Search">
+                <button type="submit"><img src="search.png"> <!--<i class="fa fa-search">--></i></button>
+              </form>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="https://www.w3schools.com/html/html_images_background.asp">Favourites</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <body>
+        <div class="container">
+        <div class="signup-container">
+            <h2>Sign Up</h2>
+            <form action="#" method="POST">
+                <div class="input-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" placeholder="Enter your full name" required>
+                </div>
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn signup-btn">Sign Up</button>
+            </form>
+            <p class="login">________________ or Sign Up with ________________ </p>
+
+    
+            <div class="social-signup">
+                <button class="btn google-btn">
+                    <img src="google-icon.png" alt="Google">Google
+                </button>
+                <button class="btn facebook-btn">
+                    <img src="fb-icon.png" alt="Facebook">Facebook
+                </button>
+            </div>
+            <p class="login-text">Already have an account? <a href="#">Login</a></p>
+
+        </div>
+        </div>
+        <footer>
+            <div class="container">
+              <p class="foot">Made with &hearts; by Rajan & Aditya | &copy; 2025 Questify - All rights reserved.</p>
+            </div>
+        </footer>
+        <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+        <script src="sign-up.js"></script>
+    </body>
+    </html>
+
