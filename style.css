@@ -1,4 +1,3 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 *,
 *::before,
@@ -60,12 +59,12 @@ html {
 
 body {
   font-size: 1.6rem;
-  background: url("backk.png");
+  background: url("index-bg.png");
 }
 
 /**/
 header {
-  background: linear-gradient(135deg, #08172a, #0b2a5f51);
+  background: linear-gradient(135deg, #08172a, #0b2a5f);
   padding: 10px;
   box-shadow: 0px 5px 10px rgba(54, 54, 54, 0.5);
   z-index: 10;
@@ -88,15 +87,15 @@ header h1 {
 }
 
 .search-box input{
-  width: 100%;
-  height: 26px;
-  border: none;
-  outline: none;
-  background: #5fc2f4;
-  border-radius: 30px;
-  color: #171061;
-  font-size: 1em;
-  text-align: center;
+    width: 100%;
+    height: 26px;
+    border: none;
+    outline: none;
+    background: #5fc2f445;
+    border-radius: 30px;
+    color: #ffffff;
+    font-size: 1em;
+    text-align: center;
 }
 
 .search-box button{
@@ -143,6 +142,10 @@ nav ul li a:hover {
 
 .logo {
   text-align: left;
+}
+
+.logo img{
+  width: 50%;
 }
 
 nav ul input[type=text] {
