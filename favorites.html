@@ -1,41 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <title>Favorites</title>
-    <link rel="stylesheet" href="favorites.css">
-</head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToonTonic</title>
+    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="favourite.css">
+  </head>
 <body>
     <header>
+        <div class="headbox">
+            <div class="logo">
+                <img src="toontonic-logo.png" alt="ToonTonic">              
+            </div>
+            <div class="search-box">
+              <form action="">
+                <input type="text" name="search" id="srch" placeholder="Search">
+                <button type="submit"><img src="search.png"> <!--<i class="fa fa-search">--></i></button>
+              </form>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="https://www.w3schools.com/html/html_images_background.asp">Favourite</a></li>
+                    <li><a href="#">contact</a></li>
+                    <li><a href="#">login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+<body>
         <h1>Your Favorites</h1>
-        <nav>
-            <a href="rick-and-morty-search.html">Back to Search</a>
-        </nav>
-    </header>    
-        <div id="favorites-page" >
-            <h1>Favorites</h1>
-            
+        <div id="favorites-page" >            
             <section id="rickandmorty-section">
-                <h2>Rick and Morty</h2>
+                <p class="favorites-name"><a href="#" >Rick and Morty</a></p>
                 <div class="results-container" id="rickandmorty-results"></div>
             </section>
             
             <section id="disney-section">
-                <h2><a href="disney.html">Disney</a></h2>
+                <p class="favorites-name"><a href="disney.html">Disney</a></p>
                 <div class="results-container" id="disney-results"></div>
             </section>
             
             <section id="pokemon-section">
-                <h2><a href="pokemon.html">Pokemon</a></h2>
+                <p class="favorites-name"><a href="pokemon.html">Pokemon</a></p>
                 <div class="results-container" id="pokemon-results"></div>
             </section>
             
             <section id="marvel-section">
-                <h2><a href="marvel.html">Marvel</a></h2>
+                <p class="favorites-name"><a href="marvel.html">Marvel</a></p>
                 <div class="results-container" id="marvel-results"></div>
             </section>
         </div>
-    </div>
+
+    <footer>
+        <div class="container">
+          <p class="foot">Made with &hearts; by Rajan & Aditya | &copy; 2025 Questify - All rights reserved.</p>
+        </div>
+    </footer>
 
     <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-auth-compat.js"></script>
@@ -43,6 +67,6 @@
 
     <!-- Your Firebase Config -->
     <script src="firebase-config.js"></script>
-    <script src="favorites.js"></script>
+    <script src="favourite.js"></script>
 </body>
 </html>
