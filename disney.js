@@ -147,11 +147,13 @@ async function fetchCharacters(page = 1) {
             characterElement.dataset.characterId = characterData._id; // Add character ID
             const characterDataStr = JSON.stringify(characterData).replace(/'/g, "");
             characterElement.innerHTML = `
-                <div class="favorite-icon" onclick="toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
+                <div onclick='displayCharacterDetails(${characterDataStr})'>
+                <div class="icon-merge" id="icon-merge">
+                    <h2>${characterData.name}</h2>
+                    <div class="favorite-icon" onclick="event.stopPropagation(); addToFavorites('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
                     <i class="${favoriteIds.has(`Disney_${characterData._id}`) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                 </div>
-                <div onclick='displayCharacterDetails(${characterDataStr})'>
-                    <h2>${characterData.name}</h2>
+                </div>
                     <img src="${characterData.imageUrl}" alt="${characterData.name}">
                 </div>
             `;
@@ -218,12 +220,14 @@ async function searchCharacter() {
                 characterElement.dataset.characterId = characterData._id; // Add character ID
                 const characterDataStr = JSON.stringify(characterData).replace(/'/g, "");
                 characterElement.innerHTML = `
-                    <div class="favorite-icon" onclick="toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
-                        <i class="${favoriteIds.has(`Disney_${characterData._id}`) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-
-                    </div>
+                    
                     <div onclick='displayCharacterDetails(${characterDataStr})'>
-                        <h2>${characterData.name}</h2>
+                       <div class="icon-merge" id="icon-merge">
+                    <h2>${characterData.name}</h2>
+                    <div class="favorite-icon" onclick="event.stopPropagation(); addToFavorites('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
+                    <i class="${favoriteIds.has(`Disney_${characterData._id}`) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                </div>
+                </div>
                         <img src="${characterData.imageUrl}" alt="${characterData.name}">
                     </div>
                 `;
@@ -239,11 +243,13 @@ async function searchCharacter() {
             characterElement.dataset.characterId = characterData._id; // Add character ID
             const characterDataStr = JSON.stringify(characterData).replace(/'/g, "");
             characterElement.innerHTML = `
-                <div class="favorite-icon" onclick="toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
-                    <i class="${favoriteIds.has(characterData._id) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-                </div>
                 <div onclick='displayCharacterDetails(${characterDataStr})'>
+                    <div class="icon-merge" id="icon-merge">
                     <h2>${characterData.name}</h2>
+                    <div class="favorite-icon" onclick="event.stopPropagation(); addToFavorites('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
+                    <i class="${favoriteIds.has(`Disney_${characterData._id}`) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                </div>
+                </div>
                     <img src="${characterData.imageUrl}" alt="${characterData.name}">
                 </div>
             `;
@@ -346,13 +352,15 @@ function displayCharacterDetails(characterData) {
     };
 
     characterInfoContainer.innerHTML = `
-    <div class="favorite-icon" onclick="toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
-                    <i class="${favoriteIds.has(characterData._id) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-                </div>
         <div class="character-card" onclick="goBack()">
             <img src="${characterData.imageUrl}" alt="${characterData.name}" class="character-card-image">
             <div class="character-card-details">
+            <div class="icon-merge" id="icon-merge">
                 <h2>${characterData.name}</h2>
+                <div class="favorite-icon" onclick="event.stopPropagation(); toggleFavorite('${characterData._id}', '${characterData.name}', 'character', '${characterData.imageUrl}', this)">
+                    <i class="${favoriteIds.has(characterData._id) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                </div>
+                </div>
                 <p><strong>Films:</strong> ${characterData.films?.join(', ') || 'N/A'}</p>
                 <p><strong>Short Films:</strong> ${characterData.shortFilms?.join(', ') || 'N/A'}</p>
                 <p><strong>TV Shows:</strong> ${characterData.tvShows?.join(', ') || 'N/A'}</p>
@@ -384,3 +392,7 @@ window.toggleFavorite = toggleFavorite;
 window.prevPage = prevPage;
 window.searchCharacter = searchCharacter;
 window.fetchCharacters = fetchCharacters;
+window.closeModal = closeModal;
+window.updatePageInfo = updatePageInfo;
+window.loadFavorites = loadFavorites;
+window.addToFavorites = addToFavorites;
