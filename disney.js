@@ -1,13 +1,30 @@
-// Ensure Firebase is initialized correctly
-const auth = firebase.auth();
-const db = firebase.firestore();
+import { app, db, auth } from "./firebase-config.js";
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  getDocs,
+  deleteDoc,
+  query,
+  where,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+
 let favoriteIds = new Set();
 let currentPage = 1;
-const totalPages = 149;
+const totalPages = 149; 
 let previousState = null;
 let currentSearchQuery = '';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const selectedCharacterId = localStorage.getItem('selectedCharacterId');
+        if (selectedCharacterId) {
+            await showSelectedCharacterDetails(selectedCharacterId);
+            localStorage.removeItem('selectedCharacterId'); // Clear stored data
+        }
+
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             await loadFavorites();
@@ -19,12 +36,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('click', (event) => {
         const suggestionsContainer = document.getElementById('suggestions-container');
         const nameInput = document.getElementById('character-name');
-
         if (suggestionsContainer && !suggestionsContainer.contains(event.target) && event.target !== nameInput) {
             suggestionsContainer.innerHTML = '';
         }
     });
 });
+
+async function showSelectedCharacterDetails(characterId) {
+    try {
+        const response = await fetch(`https://api.disneyapi.dev/character/${characterId}`);
+        if (!response.ok) throw new Error('Character not found');
+
+        const data = await response.json();
+        const characterData = data.data;
+
+        if (characterData) {
+            displayCharacterDetails(characterData);
+        } else {
+            alert('Character not found.');
+        }
+    } catch (error) {
+        console.error('Error fetching character details:', error);
+        alert('Failed to load character details.');
+    }
+}
 
 async function loadFavorites() {
     const user = auth.currentUser;
@@ -34,12 +69,9 @@ async function loadFavorites() {
 
     const userId = user.uid;
     try {
-        const favoritesSnapshot = await db.collection("favorites")
-            .doc(userId)
-            .collection("items")
-            .where("showName", "==", "Disney")
-            .where("type", "==", "character")
-            .get();
+        const favoritesRef = collection(db, "favorites", userId, "items");
+        const q = query(favoritesRef, where("showName", "==", "Disney"), where("type", "==", "character"));
+        const favoritesSnapshot = await getDocs(q);
 
         favoritesSnapshot.forEach((doc) => {
             const data = doc.data();
@@ -53,6 +85,7 @@ async function loadFavorites() {
     }
 }
 
+// Add or remove favorite
 async function addToFavorites(id, name, type, image, iconContainer) {
     const user = auth.currentUser;
     if (!user) {
@@ -61,28 +94,28 @@ async function addToFavorites(id, name, type, image, iconContainer) {
     }
 
     const userId = user.uid;
-    const compositeId = `Disney_${id}`; // Create a unique ID for the favorite
-    const favoriteRef = db.collection("favorites").doc(userId).collection("items").doc(compositeId);
+    const compositeId = `Disney_${id}`;
+    const favoriteRef = doc(db, "favorites", userId, "items", compositeId);
 
     try {
-        const doc = await favoriteRef.get();
-        if (doc.exists) {
-            await favoriteRef.delete();
+        const docSnapshot = await getDoc(favoriteRef);
+        if (docSnapshot.exists()) {
+            await deleteDoc(favoriteRef);
             iconContainer.classList.remove('favorited');
-            favoriteIds.delete(compositeId); // Remove from local set
+            favoriteIds.delete(compositeId);
             alert(`${name} removed from favorites.`);
         } else {
-            await favoriteRef.set({
+            await setDoc(favoriteRef, {
                 id,
                 name,
                 type,
                 image,
                 userId,
                 showName: 'Disney',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: serverTimestamp()
             });
             iconContainer.classList.add('favorited');
-            favoriteIds.add(compositeId); // Add to local set
+            favoriteIds.add(compositeId);
             alert(`${name} added to favorites!`);
         }
     } catch (error) {
@@ -90,7 +123,6 @@ async function addToFavorites(id, name, type, image, iconContainer) {
         alert("Failed to add favorite.");
     }
 }
-
 
 async function fetchCharacters(page = 1) {
     const characterInfoContainer = document.getElementById('character-info');
@@ -342,3 +374,13 @@ function goBack() {
         previousState = null;
     }
 }
+
+window.displayCharacterDetails = displayCharacterDetails;
+window.goBack = goBack;
+window.openModal = openModal;
+window.showSuggestions = showSuggestions;
+window.nextPage = nextPage;
+window.toggleFavorite = toggleFavorite;
+window.prevPage = prevPage;
+window.searchCharacter = searchCharacter;
+window.fetchCharacters = fetchCharacters;
