@@ -237,6 +237,17 @@ a {
     border-radius: 8px;
 }
 
+.fav-name {
+    text-align: center;
+    padding: 10px;
+    margin: 15PX;
+    font-weight: bold;
+    font-size: 3rem;
+}
+.fav-name a{
+    color: #ffffff;
+}
+
 /* Title and type */
 .favorite-card h2 {
     font-size: 1.2em;
