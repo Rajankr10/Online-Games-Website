@@ -1,72 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToonTonic</title>
-    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="favourite.css">
-  </head>
+    <title>Favorites</title>
+    <link rel="stylesheet" href="favorites.css">
+</head>
 <body>
     <header>
         <div class="headbox">
             <div class="logo">
-                <img src="toontonic-logo.png" alt="ToonTonic">              
+                <img src="logo.png" alt="Questify">
             </div>
             <div class="search-box">
-              <form action="">
-                <input type="text" name="search" id="srch" placeholder="Search">
-                <button type="submit"><img src="search.png"> <!--<i class="fa fa-search">--></i></button>
-              </form>
+                <form action="">
+                    <input type="text" name="search" id="srch" placeholder="Search">
+                    <button type="submit"><img src="search.png"> <!--<i class="fa fa-search">--></i></button>
+                </form>
             </div>
             <nav>
                 <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="https://www.w3schools.com/html/html_images_background.asp">Favourite</a></li>
-                    <li><a href="#">contact</a></li>
-                    <li><a href="#">login</a></li>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="favorites.html">Favorites</a></li>
+                    <li><a href="#">Store</a></li>
                 </ul>
             </nav>
         </div>
-    </header>
-
-<body>
-        <h1>Your Favorites</h1>
-        <div id="favorites-page" >            
+    </header>   
+        <div id="favorites-page" >
+            <h1>My Favorites</h1>
+            
             <section id="rickandmorty-section">
-                <p class="favorites-name"><a href="#" >Rick and Morty</a></p>
+                <p class="fav-name"> <a href="rick-and-morty-search.html" >Rick and Morty</a></p>
                 <div class="results-container" id="rickandmorty-results"></div>
             </section>
             
             <section id="disney-section">
-                <p class="favorites-name"><a href="disney.html">Disney</a></p>
+                <h2><a href="disney.html">Disney</a></h2>
                 <div class="results-container" id="disney-results"></div>
             </section>
             
             <section id="pokemon-section">
-                <p class="favorites-name"><a href="pokemon.html">Pokemon</a></p>
+                <h2><a href="pokemon.html">Pokemon</a></h2>
                 <div class="results-container" id="pokemon-results"></div>
             </section>
             
             <section id="marvel-section">
-                <p class="favorites-name"><a href="marvel.html">Marvel</a></p>
+                <h2><a href="marvel.html">Marvel</a></h2>
                 <div class="results-container" id="marvel-results"></div>
             </section>
         </div>
+    </div>
 
-    <footer>
-        <div class="container">
-          <p class="foot">Made with &hearts; by Rajan & Aditya | &copy; 2025 Questify - All rights reserved.</p>
-        </div>
-    </footer>
-
-    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-app-compat.js"></script>
+    <!-- <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore-compat.js"></script> -->
 
     <!-- Your Firebase Config -->
-    <script src="firebase-config.js"></script>
-    <script src="favourite.js"></script>
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="favorites.js"></script>
 </body>
 </html>
