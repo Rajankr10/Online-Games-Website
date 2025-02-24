@@ -9,11 +9,14 @@ const baseUrl = 'https://gateway.marvel.com/v1/public';
 const contentDiv = document.getElementById('content');
 const suggestionsContainer = document.getElementById('suggestions-container');
 const paginationContainer = document.getElementById('pagination');
+import { app, db, auth } from "./firebase-config.js";
+import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+// import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
 
 
 // Initialize Firestore and Authentication
-const db = firebase.firestore();
-const auth = firebase.auth();
+// const db = firebase.firestore();
+// const auth = firebase.auth();
 
 let favoriteIds = new Set();
 
@@ -41,32 +44,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadFavorites(searchType) {
     const user = auth.currentUser;
-    favoriteIds.clear(); // Clear previous favorites
+    favoriteIds.clear();
 
     if (!user) return;
 
     const userId = user.uid;
-    try{
-        const favoritesSnapshot = await db.collection("favorites")
-        .doc(userId)
-        .collection("items")
-        .where("type" ,"==", searchType)
-        .where("showName","==", 'Marvel')
-        .get();
+    const favoritesRef = collection(db, "favorites", userId, "items");
 
-        favoritesSnapshot.forEach(doc => {
-            data = doc.data();
-            const compositeId =`Marvel_${data.id}` 
+    try {
+        const q = query(favoritesRef, where("type", "==", searchType), where("showName", "==", "Marvel"));
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const compositeId = `Marvel_${data.id}`;
             favoriteIds.add(compositeId);
-    });
-        console.log("Loaded favorites for type", searchType, ":", favoriteIds);
-        } catch (error) {
-            console.error("Error loading favorites:", error);
-        }
-};
+        });
 
-async function addToFavorites(event, type, id,name,image, iconContainer) {
-    event.stopPropagation(); // Prevent card click event from triggering
+        console.log("Loaded favorites for type", searchType, ":", favoriteIds);
+    } catch (error) {
+        console.error("Error loading favorites:", error);
+    }
+}
+
+// ✅ Add or Remove from Favorites
+async function addToFavorites(event, type, id, name, image, iconContainer) {
+    event.stopPropagation();
     const user = auth.currentUser;
     if (!user) {
         alert("You must be logged in to add favorites.");
@@ -74,25 +77,25 @@ async function addToFavorites(event, type, id,name,image, iconContainer) {
     }
 
     const userId = user.uid;
-    const compositeId = `Marvel_${id};` // Create a unique ID for the favorite
-    const favoriteRef = db.collection("favorites").doc(userId).collection("items").doc(compositeId);
+    const compositeId = `Marvel_${id}`;
+    const favoriteRef = doc(db, "favorites", userId, "items", compositeId);
 
     try {
-        const doc = await favoriteRef.get();
-        if (doc.exists) {
-            await favoriteRef.delete();
+        const docSnap = await getDoc(favoriteRef);
+        if (docSnap.exists()) {
+            await deleteDoc(favoriteRef);
             iconContainer.classList.remove('favorited');
-            favoriteIds.delete(compositeId); // Remove from local set
+            favoriteIds.delete(compositeId);
             alert(`${name} removed from favorites.`);
         } else {
-            await favoriteRef.set({
+            await setDoc(favoriteRef, {
                 id,
                 name,
                 type,
                 image,
                 userId,
-                showName:'Marvel',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                showName: 'Marvel',
+                timestamp: new Date(),
             });
             iconContainer.classList.add('favorited');
             favoriteIds.add(compositeId);
@@ -377,3 +380,14 @@ function toggleDetails(itemDiv) {
         itemDiv.classList.remove('expanded'); // Remove expanded class
     }
 }
+
+window.loadFavorites = loadFavorites;
+window.addToFavorites = addToFavorites;
+window.fetchMarvelData = fetchMarvelData;
+window.displayData = displayData;
+window.updatePagination = updatePagination;
+window.searchMarvelData = searchMarvelData;
+window.showSuggestions = showSuggestions;
+window.fetchMarvelDataWithReset = fetchMarvelDataWithReset;
+window.updateActiveTab = updateActiveTab;
+window.toggleDetails = toggleDetails;
