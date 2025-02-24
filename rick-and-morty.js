@@ -1,10 +1,20 @@
 // Initialize Firestore and Authentication
-const db = firebase.firestore();
-const auth = firebase.auth();
-
+// const db = firebase.firestore();
+// const auth = firebase.auth();
+import { app, db, auth } from "./firebase-config.js";
+import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+// import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 let favoriteIds = new Set();
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    const selectedItem=JSON.parse(localStorage.getItem('selectedItem'));
+    if(selectedItem){
+        const { id, type, showName } = selectedItem;
+        document.getElementById('search-type').value = type;
+        await loadFavorites(type,showName);
+        fetchAndDisplayItemDetails(id, type);
+        localStorage.removeItem('selectedItem');
+    } else{
     updateFilters();
     document.getElementById('name').addEventListener('input', fetchSuggestions);
     document.getElementById('search-type').addEventListener('change', async() => {
@@ -14,8 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchSuggestions();
         await loadFavorites(searchType,showName);
         fetchAllData();
+    
     });
-
+}
+    
     // Listen for authentication state changes
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -36,31 +48,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-async function loadFavorites(searchType,showName) {
+
+async function fetchAndDisplayItemDetails(id, type) {
+    console.log('Fetching item details:', id, type);
+    try {
+        const response = await fetch(`https://rickandmortyapi.com/api/${type}/${id}`);
+        const result = await response.json();
+        
+        // Display the item details (reuse the existing `displayResults` function)
+        displayResults([result], type);
+    } catch (error) {
+        console.error('Error fetching item details:', error);
+    }
+}
+
+async function loadFavorites(searchType, showName) {
     const user = auth.currentUser;
     favoriteIds.clear(); // Clear previous favorites
 
     if (!user) return;
 
     const userId = user.uid;
-    try{
-        const favoritesSnapshot = await db.collection("favorites")
-        .doc(userId)
-        .collection("items")
-        .where("type" ,"==", searchType)
-        .where("showName","==",showName)
-        .get();
+    try {
+        const favoritesRef = collection(db, "favorites", userId, "items"); // Fix collection reference
+        const q = query(
+            favoritesRef,
+            where("type", "==", searchType),
+            where("showName", "==", showName)
+        );
 
-        favoritesSnapshot.forEach(doc => {
-            favoriteIds.add(doc.id);
-    });
+        const favoritesSnapshot = await getDocs(q);
+
+        favoritesSnapshot.forEach((doc) => {
+            const data = doc.data();
+            const compositeId = `RickAndMorty_${data.id}`;
+            favoriteIds.add(compositeId);
+        });
+
         console.log("Loaded favorites for type", searchType, ":", favoriteIds);
-        } catch (error) {
-            console.error("Error loading favorites:", error);
-        }
-};
+    } catch (error) {
+        console.error("Error loading favorites:", error);
+    }
+}
 
-async function addToFavorites(id, name, type, image,iconContainer) {
+
+async function addToFavorites(id, name, type, image, iconContainer) {
     const user = auth.currentUser;
     if (!user) {
         alert("You must be logged in to add favorites.");
@@ -68,27 +100,27 @@ async function addToFavorites(id, name, type, image,iconContainer) {
     }
 
     const userId = user.uid;
-    const compositeId = `RickAndMorty_${id};` // Create a unique ID for the favorite
-    const favoriteRef = db.collection("favorites").doc(userId).collection("items").doc(compositeId);
+    const compositeId = `RickAndMorty_${id}`;
+    const favoriteRef = doc(db, "favorites", userId, "items", compositeId);
 
     try {
-        const doc = await favoriteRef.get();
-        if (doc.exists) {
-            await favoriteRef.delete();
-            iconContainer.classList.remove('favorited');
-            favoriteIds.delete(compositeId); // Remove from local set
+        const docSnap = await getDoc(favoriteRef);
+        if (docSnap.exists()) {
+            await deleteDoc(favoriteRef);
+            iconContainer.classList.remove("favorited");
+            favoriteIds.delete(compositeId);
             alert(`${name} removed from favorites.`);
         } else {
-            await favoriteRef.set({
+            await setDoc(favoriteRef, {
                 id,
                 name,
                 type,
                 image,
                 userId,
-                showName:'Rick and Morty',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                showName: "Rick and Morty",
+                timestamp: new Date()
             });
-            iconContainer.classList.toggle('favorited');
+            iconContainer.classList.add("favorited");
             favoriteIds.add(compositeId);
             alert(`${name} added to favorites!`);
         }
@@ -248,8 +280,7 @@ async function displayResults(results, searchType) {
         const resultItem = document.createElement('div');
         resultItem.className = 'result-item';
 
-        const compositeId = `RickAndMorty_${result.id};`
-
+        const compositeId = `RickAndMorty_${result.id}`;
         const isFavorited = favoriteIds.has(compositeId);
 
         const defaultLocationImage = 'rick-and-morty-logo.png'; // Replace with your actual default image path
@@ -293,3 +324,5 @@ async function displayResults(results, searchType) {
         resultsContainer.appendChild(resultItem);
     }
 }
+
+window.addToFavorites = addToFavorites;
