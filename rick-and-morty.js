@@ -3,7 +3,7 @@
 // const auth = firebase.auth();
 import { app, db, auth } from "./firebase-config.js";
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-// import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+// import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
 let favoriteIds = new Set();
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -327,3 +327,12 @@ async function displayResults(results, searchType) {
 
 window.addToFavorites = addToFavorites;
 window.searchRickAndMorty = searchRickAndMorty;
+window.updateFilters = updateFilters;
+window.toggleAdditionalFilters = toggleAdditionalFilters;
+window.fetchSuggestions = fetchSuggestions;
+window.displaySuggestions = displaySuggestions;
+window.fetchAllData = fetchAllData;
+window.updatePageInfo = updatePageInfo;
+window.prevPage = prevPage;
+window.nextPage = nextPage;
+window.displayResults = displayResults;
