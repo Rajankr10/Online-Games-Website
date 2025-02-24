@@ -326,3 +326,4 @@ async function displayResults(results, searchType) {
 }
 
 window.addToFavorites = addToFavorites;
+window.searchRickAndMorty = searchRickAndMorty;
