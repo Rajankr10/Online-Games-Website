@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
+  <script type="module" src="firebase-config.js"></script>
     <header>
         <div class="headbox">
             <div class="logo">
@@ -23,7 +24,7 @@
             <nav>
                 <ul>
                   <li><a href="#">Home</a></li>
-                  <li><a href="https://www.w3schools.com/html/html_images_background.asp">Favourites</a></li>
+                  <li><a href="favorites.html">Favourites</a></li>
                   <li><a href="#">Contact</a></li>
                   <li><a href="#">login</a></li>
                 </ul>
@@ -32,7 +33,6 @@
     </header>
   <!--...-->
     
-  <body>
     <section id="tranding">
       <div class="container">
         <h1 class="text-center section-heading">Welcome to ToonTonic</h1>
@@ -43,52 +43,35 @@
             <li>All for FREE</li>
           </ul>
       </div>
+      </div>
       <div class="container">
         <div class="swiper tranding-slider">
           <div class="swiper-wrapper">
             <!-- Slide-start -->
-            <div class="swiper-slide tranding-slide card">
-              <div class="tranding-slide-img">
-                <img href="//www.w3schools.com/howto/howto_css_searchbar.asp" src="marvel-home.png" alt="Marvel">
-              </div>
-              <!--<div class="tranding-slide-content">
-                <h1 class="food-price">$20</h1>
-                <div class="tranding-slide-content-bottom">
-                  <h2 class="food-name" >
-                    Marvel
-                  </h2>
-                  <h3 class="food-rating">
-                    <span>4.5</span>
-                    <div class="rating">
-                      <ion-icon name="star"></ion-icon>
-                      <ion-icon name="star"></ion-icon>
-                      <ion-icon name="star"></ion-icon>
-                      <ion-icon name="star"></ion-icon>
-                      <ion-icon name="star"></ion-icon>
-                    </div>
-                  </h3>
-                </div>
-              </div>-->
-            </div>
-            <!-- Slide-end -->
-            <!-- Slide-start -->
-            <div class="swiper-slide tranding-slide card">
-              <div class="tranding-slide-img">
-                <img src="pokemon-home.jpg" alt="Tranding">
+            <div class="swiper-slide tranding-slide" data-target="marvel-card">
+              <div class="tranding-slide-img" >
+                <img src="marvel-home.png" alt="Marvel">
               </div>
             </div>
             <!-- Slide-end -->
             <!-- Slide-start -->
-            <div class="swiper-slide tranding-slide card" id="rick-and-morty-card" >
+            <div class="swiper-slide tranding-slide" data-target="pokemon-card">
+              <div class="tranding-slide-img">
+                <img src="pokemon-home.jpg" alt="Pokemon">
+              </div>
+            </div>
+            <!-- Slide-end -->
+            <!-- Slide-start -->
+            <div class="swiper-slide tranding-slide" data-target="disney-card"  >
               <div class="tranding-slide-img">
                 <img src="disney-home.jpg" alt="Disney">
               </div>
             </div>
             <!-- Slide-end -->
             <!-- Slide-start -->
-            <div class="swiper-slide tranding-slide card">
+            <div class="swiper-slide tranding-slide" data-target="rick-and-morty-card">
               <div class="tranding-slide-img">
-                <img src="rick-and-morty-home.jpg" alt="Tranding">
+                <img src="rick-and-morty-home.jpg" alt="Rick and Morty">
               </div>
             </div>
             <!-- Slide-end -->
@@ -106,8 +89,6 @@
         </div>
       </div>
     </section>
-
-</html>
     <footer>
         <div class="container">
           <p>Made with &hearts; by Rajan & Aditya | &copy; 2025 Questify - All rights reserved.</p>
@@ -116,7 +97,14 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
-    <script src="script.js"></script>
+    <!---->
+    <!-- <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore-compat.js"></script> -->
+
+    <!-- Your Firebase Config -->
+    
+    <script type="module" src="script.js"></script>
   </body>
 </body>
 </html>
