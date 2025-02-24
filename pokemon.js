@@ -1,34 +1,82 @@
 // Initialize Firestore and Authentication
-const db = firebase.firestore();
-const auth = firebase.auth();
-
+import { app, db, auth } from "./firebase-config.js";
+import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+// import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
 let favoriteIds = new Set();
+let currentPage = 1;
+const limit = 20;
 
-document.addEventListener('DOMContentLoaded', async() => {
+document.addEventListener('DOMContentLoaded', async () => {
+    let isRedirectedFromFavorites = false;
+    const pokemonId = localStorage.getItem('viewPokemonId');
+    if (pokemonId) {
+        isRedirectedFromFavorites = true;
+        await loadFavorites('Pokemon');
+        await fetchAndDisplayPokemonDetails(pokemonId);
+        togglePokemonDetails(null, { id: pokemonId });
+        localStorage.removeItem('viewPokemonId'); // Clear storage after use
+    }
     populateTypeFilter();
     populateSpeciesFilter();
-    // await loadFavorites();
-    // fetchPokemon();
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            await loadFavorites(user.uid);
-            fetchPokemon();
+            await loadFavorites('Pokemon'); // Pass the showName dynamically
+            if (!isRedirectedFromFavorites)
+                fetchPokemon(currentPage, limit);
         } else {
             favoriteIds.clear();
-            fetchPokemon();
+            if (!isRedirectedFromFavorites)
+                fetchPokemon(currentPage, limit);
+        }
+    });
+
+    // Event delegation for suggestions
+    const suggestionsContainer = document.getElementById('suggestions-container');
+    suggestionsContainer.addEventListener('click', (event) => {
+        if (event.target.classList.contains('suggestion-item')) {
+            const pokemonName = event.target.textContent;
+            document.getElementById('pokemon-name').value = pokemonName;
+            suggestionsContainer.innerHTML = '';
+            searchPokemon();
         }
     });
 
     // Hide suggestions when clicking outside the input and suggestions container
     document.addEventListener('click', (event) => {
-        const suggestionsContainer = document.getElementById('suggestions-container');
         const nameInput = document.getElementById('pokemon-name');
-        if (!suggestionsContainer.contains(event.target) && event.target !== nameInput) {
+        if (!suggestionsContainer.contains(event.target)) {
             suggestionsContainer.innerHTML = '';
         }
     });
 });
+
+async function fetchAndDisplayPokemonDetails(pokemonId) {
+    const pokemonInfoContainer = document.getElementById('pokemon-info');
+    pokemonInfoContainer.innerHTML = '';
+
+    try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+        if (!response.ok) {
+            throw new Error('Pokémon not found');
+        }
+        const pokemonData = await response.json();
+
+        const pokemonElement = document.createElement('div');
+        pokemonElement.className = 'pokemon-item';
+
+        pokemonElement.innerHTML = `
+            <h2>${pokemonData.name}</h2>
+            <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
+        `;
+        pokemonInfoContainer.appendChild(pokemonElement);
+
+        // Automatically display the details
+        togglePokemonDetails(pokemonElement, pokemonData);
+    } catch (error) {
+        pokemonInfoContainer.innerHTML = `<p>${error.message}</p>`;
+    }
+}
 
 async function loadFavorites(showName = 'Pokemon') {
     const user = auth.currentUser;
@@ -38,17 +86,11 @@ async function loadFavorites(showName = 'Pokemon') {
     const userId = user.uid;
 
     try {
-        const snapshot = await db.collection('favorites')
-            .doc(userId)
-            .collection("items")
-            .where("showName", "==", 'Pokemon')
-            .get();
-        
-        console.log("Fetched favorites snapshot size:", snapshot.size);
+        const q = query(collection(db, 'favorites', userId, 'items'), where("showName", "==", showName));
+        const snapshot = await getDocs(q);
 
         snapshot.forEach(doc => {
             const data = doc.data();
-            console.log("Favorite data:", data);
             const compositeId = `Pokemon_${data.id}`;
             favoriteIds.add(compositeId);
         });
@@ -58,7 +100,6 @@ async function loadFavorites(showName = 'Pokemon') {
     }
 }
 
-// Add or Remove from Favorites using Composite ID
 async function addToFavorites(id, name, image, type, iconContainer) {
     const user = auth.currentUser;
 
@@ -68,51 +109,52 @@ async function addToFavorites(id, name, image, type, iconContainer) {
     }
 
     const userId = user.uid;
-    const compositeId = `Pokemon_${id}`; // Composite ID for Pokémon favorites
-    const favoriteRef = db.collection("favorites").doc(userId).collection("items").doc(compositeId);
+    const compositeId = `Pokemon_${id}`;
+    const favoriteRef = doc(db, "favorites", userId, "items", compositeId);
 
     try {
-        const doc = await favoriteRef.get();
-        if (doc.exists) {
-            await favoriteRef.delete();
+        const docSnap = await getDoc(favoriteRef);
+        if (docSnap.exists()) {
+            await deleteDoc(favoriteRef);
             iconContainer.classList.remove('favorited');
-            favoriteIds.delete(compositeId); // Update the local set
+            favoriteIds.delete(compositeId);
             alert(`${name} removed from favorites.`);
         } else {
-            await favoriteRef.set({
+            await setDoc(favoriteRef, {
                 id,
                 name,
                 type,
                 image,
                 userId,
                 showName: 'Pokemon',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: serverTimestamp()
             });
             iconContainer.classList.add('favorited');
             favoriteIds.add(compositeId);
             alert(`${name} added to favorites!`);
         }
+        // Refresh the UI
+        fetchPokemon(currentPage, limit);
     } catch (error) {
         console.error("Error updating favorites:", error);
         alert("Failed to update favorite.");
     }
 }
 
-
-let currentPage = 1;
-const limit = 20;
-
-async function fetchPokemon(page = 1) {
+async function fetchPokemon(page = 1, limit = 20) {
     const pokemonInfoContainer = document.getElementById('pokemon-info');
     pokemonInfoContainer.innerHTML = '';
 
     try {
-        const offset = (page - 1) * 20;
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=20`);
+        const offset = (page - 1) * limit;
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`);
         if (!response.ok) throw new Error('Failed to fetch Pokémon');
 
         const data = await response.json();
         const pokemonList = data.results;
+
+        // Update pagination
+        updatePagination(data.count);
 
         for (const pokemon of pokemonList) {
             const pokemonResponse = await fetch(pokemon.url);
@@ -149,7 +191,6 @@ async function fetchPokemon(page = 1) {
     }
 }
 
-
 function updatePagination(totalCount) {
     const paginationContainer = document.getElementById('pagination');
     paginationContainer.innerHTML = '';
@@ -162,7 +203,7 @@ function updatePagination(totalCount) {
     prevButton.onclick = () => {
         if (currentPage > 1) {
             currentPage--;
-            fetchPokemon(currentPage);
+            fetchPokemon(currentPage, limit);
         }
     };
     paginationContainer.appendChild(prevButton);
@@ -178,23 +219,23 @@ function updatePagination(totalCount) {
     nextButton.onclick = () => {
         if (currentPage < totalPages) {
             currentPage++;
-            fetchPokemon(currentPage);
+            fetchPokemon(currentPage, limit);
         }
     };
     paginationContainer.appendChild(nextButton);
 }
 
 async function togglePokemonDetails(pokemonElement, pokemonData) {
+    if (!pokemonElement) return;
+
     const existingDetails = pokemonElement.querySelector('.pokemon-details-content');
 
-    // Close details if already open and prevent reopening immediately
     if (existingDetails) {
         pokemonElement.classList.remove('show-details');
         existingDetails.remove();
         return;
     }
 
-    // Remove existing open details in other cards to ensure only one is open at a time
     document.querySelectorAll('.pokemon-item.show-details').forEach(item => {
         item.classList.remove('show-details');
         const details = item.querySelector('.pokemon-details-content');
@@ -213,16 +254,27 @@ async function togglePokemonDetails(pokemonElement, pokemonData) {
 
         const characteristics = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en').flavor_text;
 
-        // Fetch evolution chain
         const evolutionChainResponse = await fetch(speciesData.evolution_chain.url);
         const evolutionChainData = await evolutionChainResponse.json();
         const evolutionChain = getEvolutionChain(evolutionChainData.chain);
 
-        // Fetch moves
         const moves = pokemonData.moves.map(move => move.move.name).join(', ');
+
+         // Check if the Pokémon is already favorited
+         const compositeId = `Pokemon_${pokemonData.id}`;
+         const isFavorited = favoriteIds.has(compositeId);
 
         pokemonDetailsContainer.innerHTML = `
             <div class="pokemon-details">
+                <div class="favorite-icon ${isFavorited ? 'favorited' : ''}" 
+                    onclick="event.stopPropagation(); addToFavorites(
+                    '${pokemonData.id}',
+                    '${pokemonData.name}',
+                    '${pokemonData.sprites.front_default}',
+                    'Pokemon', 
+                    this)">
+                    <i class="fa-regular fa-heart"></i>
+                </div>
                 <div class="pokemon-details-info">
                     <p><strong>Abilities:</strong> ${abilities}</p>
                     <p><strong>Types:</strong> ${types}</p>
@@ -243,6 +295,8 @@ async function togglePokemonDetails(pokemonElement, pokemonData) {
         pokemonDetailsContainer.innerHTML = `<p>${error.message}</p>`;
     }
 }
+
+// Rest of the functions (searchPokemon, getEvolutionChain, populateTypeFilter, populateSpeciesFilter, filterPokemon, showSuggestions) remain the same.
 
 
 async function searchPokemon() {
@@ -439,3 +493,15 @@ async function showSuggestions() {
         console.error('Error fetching suggestions:', error);
     }
 }
+
+window.addToFavorites
+window.loadFavorites
+window.fetchPokemon
+window.updatePagination
+window.togglePokemonDetails
+window.searchPokemon
+window.getEvolutionChain
+window.populateTypeFilter
+window.populateSpeciesFilter
+window.filterPokemon
+window.showSuggestions
