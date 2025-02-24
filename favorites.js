@@ -1,268 +1,142 @@
-// Ensure Firebase is initialized correctly
-const auth = firebase.auth();
-const db = firebase.firestore();
+import { app, db, auth } from "./firebase-config.js";
+import {
+  collection,
+  doc,
+  getDocs,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+} from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
 
-document.addEventListener('DOMContentLoaded', () => {
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            displayFavoritesRickAndMorty(user);
-            displayFavoritesPokemon(user);
-            displayFavoritesMarvel(user);
-            displayFavoritesDisney(user);
-        } else {
-            alert("You must be logged in to view your favorites.");
-            window.location.href = "login.html"; // Redirect to login page if not logged in
-        }
-    });
+// Configuration for shows
+const showsConfig = [
+  {
+    name: "Rick and Morty",
+    containerId: "rickandmorty-results",
+    detailsPage: "rick-and-morty-search.html",
+  },
+  {
+    name: "Pokemon",
+    containerId: "pokemon-results",
+    detailsPage: "pokemon.html",
+  },
+  {
+    name: "Marvel",
+    containerId: "marvel-results",
+    detailsPage: "marvel.html",
+  },
+  {
+    name: "Disney",
+    containerId: "disney-results",
+    detailsPage: "disney.html",
+  },
+];
+
+// Check if user is authenticated
+document.addEventListener("DOMContentLoaded", () => {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      showsConfig.forEach((show) => {
+        displayFavorites(
+          user,
+          show.name,
+          show.containerId,
+          (id, type, showName) => navigateToDetails(id, type, showName, show.detailsPage),
+          removeFavorite
+        );
+      });
+    } else {
+      alert("You must be logged in to view your favorites.");
+      window.location.href = "login.html"; // Redirect to login page if not logged in
+    }
+  });
 });
 
-// Fetch and display favorite items for Rick and Morty
-async function displayFavoritesRickAndMorty(user) {
-    const userId = user.uid;
-    const favoritesContainer = document.getElementById('rickandmorty-results');
-    favoritesContainer.innerHTML = '';
+// Generic function to fetch and display favorite items
+async function displayFavorites(user, showName, containerId, detailsFunction, removeFunction) {
+  const userId = user.uid;
+  const favoritesContainer = document.getElementById(containerId);
+  favoritesContainer.innerHTML = '<p>Loading favorites...</p>'; // Loading state
 
-    try {
-        const querySnapshot = await db.collection("favorites")
-            .doc(userId)
-            .collection("items")
-            .where("showName", "==", "Rick and Morty")
-            .orderBy("timestamp", "desc")
-            .get();
+  try {
+    const q = query(
+      collection(db, "favorites", userId, "items"),
+      where("showName", "==", showName),
+      orderBy("timestamp", "desc")
+    );
+    const querySnapshot = await getDocs(q);
 
-        querySnapshot.forEach((doc) => {
-            const favorite = doc.data();
-            const card = document.createElement('div');
-            card.className = 'favorite-card';
-
-            card.innerHTML = `
-                <button class="remove-favorite" onclick="removeFavoritesRick_Morty(event, '${doc.id}')">Remove</button>
-                <img src="${favorite.image || 'logo.png'}" alt="${favorite.name}">
-                <h2>${favorite.name}</h2>
-                <p>Type: ${favorite.type}</p>
-            `;
-
-            favoritesContainer.appendChild(card);
-        });
-    } catch (error) {
-        console.error("Error fetching Rick and Morty favorites:", error);
-        alert("Failed to load Rick and Morty favorites.");
+    if (querySnapshot.empty) {
+      favoritesContainer.innerHTML = `<p>No favorite ${showName} items found.</p>`;
+      return;
     }
+
+    favoritesContainer.innerHTML = ''; // Clear loading state
+    querySnapshot.forEach((doc) => {
+      const favorite = doc.data();
+      const card = createFavoriteCard(favorite, doc.id, detailsFunction, removeFunction);
+      favoritesContainer.appendChild(card);
+    });
+  } catch (error) {
+    console.error(`Error fetching ${showName} favorites:`, error);
+    favoritesContainer.innerHTML = `<p>Error loading favorites. Please try again later.</p>`;
+  }
 }
 
-// Function to remove a favorite from Firestore for Rick and Morty
-async function removeFavoritesRick_Morty(event, itemId) {
+// Function to create a favorite card
+function createFavoriteCard(favorite, docId, detailsFunction, removeFunction) {
+  const card = document.createElement("div");
+  card.className = "favorite-card";
+  card.setAttribute("role", "button");
+  card.setAttribute("aria-label", `View details for ${favorite.name}`);
+
+  card.innerHTML = `
+    <img src="${favorite.image || 'placeholder.png'}" alt="${favorite.name}" />
+    <h2>${favorite.name}</h2>
+    <p>Type: ${favorite.type}</p>
+    <button class="remove-favorite" aria-label="Remove ${favorite.name} from favorites">Remove</button>
+  `;
+
+  // Add click event for viewing details
+  card.addEventListener("click", () => detailsFunction(favorite.id, favorite.type, favorite.showName));
+
+  // Add click event for removing favorite
+  const removeButton = card.querySelector(".remove-favorite");
+  removeButton.addEventListener("click", (event) => {
     event.stopPropagation(); // Prevent card click event from triggering
-    const user = auth.currentUser;
-    if (!user) {
-        alert("You must be logged in to remove favorites.");
-        return;
-    }
+    removeFunction(event, docId, favorite.showName, card);
+  });
 
-    const userId = user.uid;
-
-    try {
-        await db.collection('favorites')
-            .doc(userId)
-            .collection('items')
-            .doc(itemId)
-            .delete();
-
-        alert("Favorite removed successfully.");
-        await displayFavoritesRickAndMorty(user); // Refresh the list
-    } catch (error) {
-        console.error("Error removing Rick and Morty favorite:", error);
-        alert("Failed to remove favorite.");
-    }
+  return card;
 }
 
-// Fetch and display favorite Pokémon items
-async function displayFavoritesPokemon(user) {
-    const favoritesContainer = document.getElementById('pokemon-results');
-    favoritesContainer.innerHTML = '';
+// Function to remove a favorite from Firestore
+async function removeFavorite(event, itemId, showName, card) {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("You must be logged in to remove favorites.");
+    return;
+  }
 
-    const userId = user.uid;
+  const userId = user.uid;
 
-    try {
-        const snapshot = await db.collection('favorites')
-            .doc(userId)
-            .collection('items')
-            .where('showName', '==', 'Pokemon')
-            .orderBy("timestamp", "desc")
-            .get();
-
-        if (snapshot.empty) {
-            favoritesContainer.innerHTML = '<p>No favorite Pokémon found.</p>';
-            return;
-        }
-
-        snapshot.forEach(doc => {
-            const favorite = doc.data();
-
-            const card = document.createElement('div');
-            card.className = 'favorite-card';
-
-            card.innerHTML = `
-                <div class="favorite-content">
-                    <h2>${favorite.name}</h2>
-                    <img src="${favorite.image}" alt="${favorite.name}">
-                    <button class="remove-favorite-btn" 
-                        onclick="removeFavoritesPokemon(event, '${doc.id}', 'Pokemon')">
-                        Remove from Favorites
-                    </button>
-                </div>
-            `;
-
-            favoritesContainer.appendChild(card);
-        });
-
-    } catch (error) {
-        console.error('Failed to load Pokémon favorites:', error);
-        favoritesContainer.innerHTML = '<p>Error loading favorites. Please try again later.</p>';
-    }
+  try {
+    await deleteDoc(doc(db, "favorites", userId, "items", itemId));
+    card.remove(); // Remove the card from the UI
+    alert("Favorite removed successfully.");
+  } catch (error) {
+    console.error(`Error removing ${showName} favorite:`, error);
+    alert("Failed to remove favorite.");
+  }
 }
 
-// Function to remove a favorite Pokémon from Firestore
-async function removeFavoritesPokemon(event, favoriteId, showName) {
-    event.stopPropagation(); // Prevent card click event from triggering
-    const user = auth.currentUser;
-
-    if (!user) {
-        alert('Please log in to manage favorites.');
-        return;
-    }
-
-    const userId = user.uid;
-
-    try {
-        await db.collection('favorites')
-            .doc(userId)
-            .collection('items')
-            .doc(favoriteId)
-            .delete();
-
-        alert("Favorite removed successfully.");
-        await displayFavoritesPokemon(user); // Refresh the list
-    } catch (error) {
-        console.error("Error removing Pokémon favorite:", error);
-        alert("Failed to remove favorite.");
-    }
-}
-
-async function displayFavoritesMarvel(user) {
-    const userId = user.uid;
-    const favoritesContainer = document.getElementById('marvel-results');
-    favoritesContainer.innerHTML = '';
-
-    try {
-        const querySnapshot = await db.collection('favorites')
-            .doc(userId)
-            .collection('items')
-            .where('showName', '==', 'Marvel')
-            .orderBy("timestamp", "desc")
-            .get();
-
-        querySnapshot.forEach((doc) => {
-            const favorite = doc.data();
-            const card = document.createElement('div');
-            card.className = 'favorite-card';
-
-            card.innerHTML = `
-                <button class="remove-favorite" onclick="removeFavoritesMarvel(event, '${doc.id}')">Remove</button>
-                <img src="${favorite.image || 'logo.png'}" alt="${favorite.name}">
-                <h2>${favorite.name}</h2>
-                <p>Type: ${favorite.type}</p>
-            `;
-
-            favoritesContainer.appendChild(card);
-        });
-    } catch (error) {
-        console.error('Failed to load Marvel favorites:', error);
-        favoritesContainer.innerHTML = '<p>Error loading favorites. Please try again later.</p>';
-    }
-}
-
-// Function to remove a favorite Marvel item
-async function removeFavoritesMarvel(event, itemId) {
-    event.stopPropagation();
-    const user = auth.currentUser;
-    if (!user) {
-        alert("You must be logged in to remove favorites.");
-        return;
-    }
-
-    const userId = user.uid;
-
-    try {
-        await db.collection('favorites')
-            .doc(userId)
-            .collection('items')
-            .doc(itemId)
-            .delete();
-
-        alert("Favorite removed successfully.");
-        await displayFavoritesMarvel(user);
-    } catch (error) {
-        console.error("Error removing Marvel favorite:", error);
-        alert("Failed to remove favorite.");
-    }
-}
-
-async function displayFavoritesDisney(user) {
-    const userId = user.uid;
-    const favoritesContainer = document.getElementById('disney-results');
-    favoritesContainer.innerHTML = '';
-
-    try {
-        const querySnapshot = await db.collection('favorites')
-            .doc(userId)
-            .collection('items')
-            .where('showName', '==', 'Disney')
-            .orderBy("timestamp", "desc")
-            .get();
-
-        querySnapshot.forEach((doc) => {
-            const favorite = doc.data();
-            const card = document.createElement('div');
-            card.className = 'favorite-card';
-
-            card.innerHTML = `
-                <button class="remove-favorite" onclick="removeFavoritesDisney(event, '${doc.id}')">Remove</button>
-                <img src="${favorite.image || 'logo.png'}" alt="${favorite.name}">
-                <h2>${favorite.name}</h2>
-                <p>Type: ${favorite.type}</p>
-            `;
-
-            favoritesContainer.appendChild(card);
-        });
-    } catch (error) {
-        console.error('Failed to load Disney favorites:', error);
-        favoritesContainer.innerHTML = '<p>Error loading favorites. Please try again later.</p>';
-    }
-}
-
-// Function to remove a favorite Disney item
-async function removeFavoritesDisney(event, itemId) {
-    event.stopPropagation();
-    const user = auth.currentUser;
-    if (!user) {
-        alert("You must be logged in to remove favorites.");
-        return;
-    }
-
-    const userId = user.uid;
-
-    try {
-        await db.collection('favorites')
-            .doc(userId)
-            .collection('items')
-            .doc(itemId)
-            .delete();
-
-        alert("Favorite removed successfully.");
-        await displayFavoritesDisney(user);
-    } catch (error) {
-        console.error("Error removing Disney favorite:", error);
-        alert("Failed to remove favorite.");
-    }
+// Navigation function
+function navigateToDetails(id, type, showName, page) {
+  localStorage.setItem(
+    "selectedItem",
+    JSON.stringify({ id, type, showName })
+  );
+  window.location.href = page;
 }
