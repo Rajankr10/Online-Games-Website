@@ -287,8 +287,8 @@ async function displayResults(results, searchType) {
         const defaultEpisodeImage = 'rick-and-morty-logo.png'; // Replace with your actual default image path
 
         resultItem.innerHTML = `    
-        <div class="favorite-icon ${isFavorited ? 'favorited' : ''}"onclick="addToFavorites('${result.id}', '${result.name}', '${searchType}', '${result.image}',this)" >
-            <i class="fa-regular fa-heart"></i>
+        <div class="favorite-icon" onclick="addToFavorites('${result.id}', '${result.name}', '${searchType}', '${result.image}',this)" >
+                    <i class="${isFavorited ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
         </div>
             ${searchType === 'character' ? `
                 <img src="${result.image || ''}" alt="${result.name}">
