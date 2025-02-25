@@ -58,12 +58,9 @@ html {
 }
 
 body {
-    justify-content: center;
-    align-items: center;
-    font-size: 1.6rem;
-    background: url("login-bg1.png");
+  font-size: 1.6rem;
+  background: url("login-bg.png");
 }
-
 
 /**/
 header {
@@ -111,7 +108,7 @@ header h1 {
   top: 3px;
   right: 5px;
   transform: scale(0.9);
-  background-color: #ec994b;
+  background-color: #ffbb00;
 }
 
 .search-box button img{
@@ -122,12 +119,12 @@ nav ul {
   list-style: none;
   padding: 0;
   margin-top: 12px;
-  text-align: right;
+  text-align: left;
 }
 
 nav ul li {
   display: inline;
-  margin: 0 15px;
+  margin: 0 10px;
 }
 
 nav ul li a {
@@ -136,6 +133,17 @@ nav ul li a {
   font-weight: bold;
   font-size: 1em;
   transition: transform 0.3s ease-in-out, color 0.3s;
+}
+
+a img {
+  padding-top: 8px;
+  width: 22px;
+  margin-left: 10px;
+}
+
+.nav-log{
+  gap: 40px;
+  display: flex;
 }
 
 nav ul li a:hover {
@@ -164,7 +172,7 @@ nav ul input[type=text] {
 
 .headbox {
   display: flex;
-  gap: 20rem;
+  gap: 10rem;
   max-width: 124rem;
   padding: 0 1rem;
   margin: 0 15px;
