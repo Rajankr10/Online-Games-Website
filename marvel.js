@@ -155,11 +155,13 @@ function displayData(category, items, totalCount) {
         // const imageUrl = `${item.thumbnail.path}.${item.thumbnail.extension}`;
 
         let itemContent = `
-        <div class="favorite-icon ${isFavorited ? 'favorited' : ''}"
-        onclick="addToFavorites(event, '${currentCategory}', '${item.id}','${item.name || item.title}','${imageUrl}',this)" >
-            <i class="fa-regular fa-heart"></i>
-        </div>
+        <div class="icon-merge" id="icon-merge">
             <h2>${item.title || item.name || item.fullName}</h2>
+            <div class="favorite-icon "
+        onclick="addToFavorites(event, '${currentCategory}', '${item.id}','${item.name || item.title}','${imageUrl}',this)" >
+                    <i class="${isFavorited ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+        </div>
+        </div>
             <img src="${imageUrl}" alt="${item.title || item.name || item.fullName}">
 
             <div class="marvel-item-details" id="marvel-item-details" style="display: none;">
