@@ -283,8 +283,8 @@ async function displayResults(results, searchType) {
         const compositeId = `RickAndMorty_${result.id}`;
         const isFavorited = favoriteIds.has(compositeId);
 
-        const defaultLocationImage = 'rick-and-morty-logo.png'; // Replace with your actual default image path
-        const defaultEpisodeImage = 'rick-and-morty-logo.png'; // Replace with your actual default image path
+        const defaultLocationImage = 'rick-morty-loc.png'; // Replace with your actual default image path
+        const defaultEpisodeImage = 'rick-morty-epi.png'; // Replace with your actual default image path
 
         resultItem.innerHTML = `    
         <div class="favorite-icon" onclick="addToFavorites('${result.id}', '${result.name}', '${searchType}', '${result.image}',this)" >
