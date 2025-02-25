@@ -58,12 +58,9 @@ html {
 }
 
 body {
-    justify-content: center;
-    align-items: center;
-    font-size: 1.6rem;
-    background: url("favorites-bg.png");
+  font-size: 1.6rem;
+  background: url("index-bg.png");
 }
-
 
 /**/
 header {
@@ -111,7 +108,7 @@ header h1 {
   top: 3px;
   right: 5px;
   transform: scale(0.9);
-  background-color: #ec994b;
+  background-color: #ffbb00;
 }
 
 .search-box button img{
@@ -122,12 +119,12 @@ nav ul {
   list-style: none;
   padding: 0;
   margin-top: 12px;
-  text-align: right;
+  text-align: left;
 }
 
 nav ul li {
   display: inline;
-  margin: 0 15px;
+  margin: 0 10px;
 }
 
 nav ul li a {
@@ -136,6 +133,17 @@ nav ul li a {
   font-weight: bold;
   font-size: 1em;
   transition: transform 0.3s ease-in-out, color 0.3s;
+}
+
+a img {
+  padding-top: 8px;
+  width: 22px;
+  margin-left: 10px;
+}
+
+.nav-log{
+  gap: 40px;
+  display: flex;
 }
 
 nav ul li a:hover {
@@ -164,7 +172,7 @@ nav ul input[type=text] {
 
 .headbox {
   display: flex;
-  gap: 20rem;
+  gap: 10rem;
   max-width: 124rem;
   padding: 0 1rem;
   margin: 0 15px;
@@ -181,7 +189,6 @@ h1 {
 a {
     align-items: center;
     text-align: center;
-    margin: 20px 0;
     color: #000000;
 }
 #rickandmorty-results{
@@ -223,7 +230,7 @@ a {
     border: 2px solid #ddd;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: white;
+    background: url("favorites-sbg.png");
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
     text-align: center;
@@ -263,7 +270,8 @@ a {
 
 /* Hover effect */
 .favorite-card:hover {
-    transform: translateY(-5px);
+    transform: scale(1.1);
+    transition: ease-in-out .2s;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     border-color: #4CAF50;
 }
@@ -281,6 +289,21 @@ a {
     font-weight: bold;
     font-size: 2.5rem;
   }
+
+.remove-favorite{
+    background-color: #ff9b3d;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+    font-size: 1.5rem;
+}
+
+.remove-favorite:hover{
+    background-color: #fc891d;
+}
   
 
 .foot{
