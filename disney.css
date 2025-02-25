@@ -9,67 +9,84 @@
   text-decoration: none;
 }
 
-
 :root {
   --primary: #ec994b;
   --white: #ffffff;
 }
 
 html {
-    font-size: 50.5%;
-    font-family: "Montserrat", sans-serif;
-    scroll-behavior: smooth;
-    animation: both;
-  }
+  font-size: 50.5%;
+  font-family: "Montserrat", sans-serif;
+  scroll-behavior: smooth;
+  animation: both;
+}
 
-  @media (min-width: 1440px) {
-    html {
-      zoom: 1.5;
-    }
+@media (min-width: 1440px) {
+  html {
+    zoom: 1.5;
   }
-  
-  @media (min-width: 2560px) {
-    html {
-      zoom: 1.7;
-    }
+}
+
+@media (min-width: 2560px) {
+  html {
+    zoom: 1.7;
   }
-  
-  @media (min-width: 3860px) {
-    html {
-      zoom: 2.5;
-    }
+}
+
+@media (min-width: 3860px) {
+  html {
+    zoom: 2.5;
   }
+}
+
+::-webkit-scrollbar {
+  width: 1.3rem;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 1rem;
+  background: #fdfafa;
+  transition: all 0.5s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9e9ed7;
+}
+
+::-webkit-scrollbar-track {
+  background: #f9f9f9;
+}
 
 body {
-    font-size: 1.6rem;
-    background: url("disney-bg.png");
-  }
-  
-  /**/
-  header {
-    background: linear-gradient(135deg, #08172a, #0b2a5f);
-    padding: 10px;
-    box-shadow: 0px 5px 10px rgba(54, 54, 54, 0.5);
-    z-index: 10;
-    position: sticky;
-    top: 0%;
-  }
-  
-  header h1 {
-    margin: 0;
-    font-size: 0.5em;
-    letter-spacing: 2px;
-  }
-  
-  
-  
-  .search-box{
-    flex: 1;
-    position: relative;
-    margin-top: 5px;
-  }
-  
-  .search-box input{
+  font-size: 1.6rem;
+  background: url("disney-bg.png");
+}
+
+/**/
+header {
+  background: linear-gradient(135deg, #08172a, #0b2a5f);
+  padding: 10px;
+  box-shadow: 0px 5px 10px rgba(54, 54, 54, 0.5);
+  z-index: 10;
+  position: sticky;
+  top: 0%;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 0.5em;
+  letter-spacing: 2px;
+}
+
+
+
+.search-box{
+  flex: 1;
+  position: relative;
+  margin-top: 5px;
+}
+
+.search-box input{
     width: 100%;
     height: 26px;
     border: none;
@@ -79,72 +96,88 @@ body {
     color: #ffffff;
     font-size: 1em;
     text-align: center;
-  }
-  
-  .search-box button{
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-    border-radius: 30px;
-    border: none;
-    position: absolute;
-    top: 3px;
-    right: 5px;
-    transform: scale(0.9);
-    background-color: #ec994b;
-  }
-  
-  .search-box button img{
-    width: 16px;
-  }
-  
-  nav ul {
-    list-style: none;
-    padding: 0;
-    margin-top: 12px;
-    text-align: right;
-  }
-  
-  nav ul li {
-    display: inline;
-    margin: 0 15px;
-  }
-  
-  nav ul li a {
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 1em;
-    transition: transform 0.3s ease-in-out, color 0.3s;
-  }
-  
-  nav ul li a:hover {
-    transform: scale(1.1);
-    color: #5fc2f4;
-  }
-  
-  .logo {
-    text-align: left;
-  }
-  
-  nav ul input[type=text] {
-    float: right;
-    padding: 4px 0px;
-    border-radius: 20px;
-    border: #05496b;
-    background: #05496b;
-    font-size: 0.7em;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-  }  
+}
 
-  .headbox {
-    display: flex;
-    gap: 20rem;
-    max-width: 124rem;
-    padding: 0 1rem;
-    margin: 0 15px;
-  }
+.search-box button{
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 30px;
+  border: none;
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  transform: scale(0.9);
+  background-color: #ffbb00;
+}
+
+.search-box button img{
+  width: 16px;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 12px;
+  text-align: left;
+}
+
+nav ul li {
+  display: inline;
+  margin: 0 10px;
+}
+
+nav ul li a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1em;
+  transition: transform 0.3s ease-in-out, color 0.3s;
+}
+
+a img {
+  padding-top: 8px;
+  width: 22px;
+  margin-left: 10px;
+}
+
+.nav-log{
+  gap: 40px;
+  display: flex;
+}
+
+nav ul li a:hover {
+  transform: scale(1.1);
+  color: #5fc2f4;
+}
+
+.logo {
+  text-align: left;
+}
+
+.logo img{
+  width: 50%;
+}
+
+nav ul input[type=text] {
+  float: right;
+  padding: 4px 0px;
+  border-radius: 20px;
+  border: #05496b;
+  background: #05496b;
+  font-size: 0.7em;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}  
+
+.headbox {
+  display: flex;
+  gap: 10rem;
+  max-width: 124rem;
+  padding: 0 1rem;
+  margin: 0 15px;
+}
+ /*------------------*/ 
 
   h1{
     font-size: 1.8rem;
@@ -264,14 +297,29 @@ body {
 }
 
 .character-item{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  background: url("disney-sbg.png");
-  min-width: 3px;
-  padding: 10px;
-  border-radius: 10px;
+    width: 200px;
+    padding: 15px;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid #dadada;
+    display: flex;
+    gap: 2px;
+    flex-direction: column;
+    cursor: pointer;
+    font-size: 8px;
+    color: #333;
+    position: relative;
+    background: url("disney-sbg.png");
+    box-shadow: 0 2px 4px rgba(192, 192, 192, 0.1);
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+.character-item img{
+  width: 100px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .character-card {
@@ -285,8 +333,8 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.character-card-image {
-  width: 150px;
+.character-card img {
+  width: 90%;
   height: auto;
   margin-right: 16px;
 }
