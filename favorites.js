@@ -86,17 +86,29 @@ async function displayFavorites(user, showName, containerId, detailsFunction, re
 }
 
 // Function to create a favorite card
+// Function to create a favorite card with default images
 function createFavoriteCard(favorite, docId, detailsFunction, removeFunction) {
   const card = document.createElement("div");
   card.className = "favorite-card";
   card.setAttribute("role", "button");
   card.setAttribute("aria-label", `View details for ${favorite.name}`);
 
+  // Set a default image based on type
+  let imageUrl = favorite.image || "placeholder.png"; // Default placeholder
+
+  if (favorite.showName === "Rick and Morty") {
+      if (favorite.type === "location") {
+          imageUrl = "rick-morty-loc.png"; // Replace with actual location image
+      } else if (favorite.type === "episode") {
+          imageUrl = "rick-morty-epi.png"; // Replace with actual episode image
+      }
+  }
+
   card.innerHTML = `
-    <img src="${favorite.image || 'placeholder.png'}" alt="${favorite.name}" />
-    <h2>${favorite.name}</h2>
-    <p>Type: ${favorite.type}</p>
-    <button class="remove-favorite" aria-label="Remove ${favorite.name} from favorites">Remove</button>
+      <img src="${imageUrl}" alt="${favorite.name}" />
+      <h2>${favorite.name}</h2>
+      <p>Type: ${favorite.type}</p>
+      <button class="remove-favorite" aria-label="Remove ${favorite.name} from favorites">Remove</button>
   `;
 
   // Add click event for viewing details
@@ -105,8 +117,8 @@ function createFavoriteCard(favorite, docId, detailsFunction, removeFunction) {
   // Add click event for removing favorite
   const removeButton = card.querySelector(".remove-favorite");
   removeButton.addEventListener("click", (event) => {
-    event.stopPropagation(); // Prevent card click event from triggering
-    removeFunction(event, docId, favorite.showName, card);
+      event.stopPropagation(); // Prevent card click event from triggering
+      removeFunction(event, docId, favorite.showName, card);
   });
 
   return card;
