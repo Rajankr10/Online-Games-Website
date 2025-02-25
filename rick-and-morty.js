@@ -312,7 +312,7 @@ async function displayResults(results, searchType) {
                     <p>Created: ${new Date(result.created).toLocaleDateString()}</p>
                 </div>
             ` : searchType === 'episode' ? `\
-                <img src= "${defaultLocationImage}" alt="Location">
+                <img src= "${defaultEpisodeImage}" alt="Episode">
                 <h2>${result.name}</h2>
                 <div class="result-details">
                     <p>Episode: ${result.episode}</p>
