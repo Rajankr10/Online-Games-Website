@@ -171,16 +171,18 @@ async function fetchPokemon(page = 1, limit = 20) {
             const isFavorited = favoriteIds.has(compositeId);
 
             pokemonElement.innerHTML = `
-                <div class="favorite-icon ${isFavorited ? 'favorited' : ''}" 
+                <div class="icon-merge" id="icon-merge">
+                <h2>${pokemonData.name}</h2>
+                <div class="favorite-icon " 
                     onclick="event.stopPropagation(); addToFavorites(
                     '${pokemonData.id}',
                     '${pokemonData.name}',
                     '${pokemonData.sprites.front_default}',
                     'Pokemon', 
                     this)">
-                    <i class="fa-regular fa-heart"></i>
+                    <i class="${isFavorited ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                 </div>
-                <h2>${pokemonData.name}</h2>
+                </div>
                 <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
             `;
 
@@ -266,15 +268,7 @@ async function togglePokemonDetails(pokemonElement, pokemonData) {
 
         pokemonDetailsContainer.innerHTML = `
             <div class="pokemon-details">
-                <div class="favorite-icon ${isFavorited ? 'favorited' : ''}" 
-                    onclick="event.stopPropagation(); addToFavorites(
-                    '${pokemonData.id}',
-                    '${pokemonData.name}',
-                    '${pokemonData.sprites.front_default}',
-                    'Pokemon', 
-                    this)">
-                    <i class="fa-regular fa-heart"></i>
-                </div>
+                
                 <div class="pokemon-details-info">
                     <p><strong>Abilities:</strong> ${abilities}</p>
                     <p><strong>Types:</strong> ${types}</p>
@@ -494,14 +488,14 @@ async function showSuggestions() {
     }
 }
 
-window.addToFavorites
-window.loadFavorites
-window.fetchPokemon
-window.updatePagination
-window.togglePokemonDetails
-window.searchPokemon
-window.getEvolutionChain
-window.populateTypeFilter
-window.populateSpeciesFilter
-window.filterPokemon
-window.showSuggestions
+window.addToFavorites=addToFavorites
+window.loadFavorites=loadFavorites
+window.fetchPokemon=fetchPokemon
+window.updatePagination=updatePagination
+window.togglePokemonDetails=togglePokemonDetails
+window.searchPokemon=searchPokemon
+window.getEvolutionChain=getEvolutionChain
+window.populateTypeFilter=populateTypeFilter
+window.populateSpeciesFilter=populateSpeciesFilter
+window.filterPokemon=filterPokemon
+window.showSuggestions=showSuggestions
